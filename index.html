@@ -264,6 +264,19 @@ body{background:var(--deep)}
 .toast .kicker{color:#9FD3B6}
 .toast span{color:#E7E5E4}
 .toast.err .kicker{color:#F3C77A}
+/* in fase di accesso: niente barra né menu, una sola colonna, la scheda al centro dello schermo */
+.g-app.login .g-bar{display:none}
+.g-app.login .g-body{grid-template-columns:minmax(0,1fr);min-height:100vh;align-items:center}
+.g-app.login .g-main{background:transparent;border-radius:0;justify-items:center;align-content:center;padding-block:32px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.g-app.login #vista{width:100%;justify-items:center}
+.accesso{width:100%;max-width:420px;margin:0 auto;background:var(--card);border:1px solid var(--g-line);border-radius:16px;padding:32px 32px 28px;display:grid;gap:8px;justify-items:start}
+.accesso h2{font-family:var(--sans);font-weight:700;font-size:1.5rem;letter-spacing:0;margin:10px 0 0}
+.accesso p{margin:0;color:var(--ink-2)}
+.acc-form{display:grid;gap:14px;width:100%;margin-top:14px}
+.accesso .field label{font-family:var(--sans);font-size:12.5px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--ink-2)}
+.accesso .inp{text-align:left;font-family:var(--sans);font-size:15px;border-radius:8px;height:44px;border-color:var(--g-line)}
+.accesso .inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--g-select);outline:none}
+.acc-azioni{display:flex;justify-content:flex-end;width:100%;margin-top:8px}
 @media (max-width:900px){
   .g-brand{width:auto}
   .g-filters{order:3;flex-basis:100%}
@@ -919,20 +932,25 @@ async function scaricaReport(){
 }
 
 /* ---------- render ---------- */
+/* accesso sobrio, alla Google (richiesta di Luca del 3/11): logo, "Accedi", nome del report, due campi */
 function vistaAccesso(){
-  if (S.mode === "negato") return vuoto("Accesso", "Questa email non è abilitata", `Sei entrato come ${S.email || "utente sconosciuto"}, ma non è tra le persone che possono vedere il report. Chiedi l'accesso a Luca.`, `<div><button class="btn t" id="esci">Esci</button></div>`);
-  const campo = "min-width:min(14rem,100%);flex:1;text-align:left;font-family:inherit";
-  return `<div class="panel"><div class="empty"><p class="kicker">Accesso</p><h3>Entra nel report</h3><p>Il report è riservato. Usa l'email e la password che ti ha dato Luca.</p>
-    <form id="form-accesso" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-    <input class="inp t" id="email-accesso" type="email" autocomplete="username" required placeholder="Email" aria-label="Email" style="${campo}">
-    <input class="inp t" id="password-accesso" type="password" autocomplete="current-password" required placeholder="Password" aria-label="Password" style="${campo}">
-    <button class="btn primary t" type="submit" ${S.invioInCorso ? "disabled" : ""}>${S.invioInCorso ? "Accesso…" : "Entra"}</button></form></div></div>`;
+  if (S.mode === "negato") return `<div class="accesso"><span class="g-logo" aria-hidden="true">A</span><h2>Account non abilitato</h2>
+    <p>${esc(S.email || "Questo account")} non ha accesso al Report Finanziamenti. Per richiederlo, rivolgiti a chi gestisce il report.</p>
+    <div class="acc-azioni"><button class="g-pdf t" id="esci" type="button">Usa un altro account</button></div></div>`;
+  return `<div class="accesso"><span class="g-logo" aria-hidden="true">A</span><h2>Accedi</h2><p>Report Finanziamenti · Gruppo Autoimport</p>
+    <form id="form-accesso" class="acc-form">
+      <div class="field"><label for="email-accesso">Email</label><input class="inp t" id="email-accesso" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="password-accesso">Password</label><input class="inp t" id="password-accesso" type="password" autocomplete="current-password" required></div>
+      <div class="acc-azioni"><button class="g-pdf t" type="submit" ${S.invioInCorso ? "disabled" : ""}>${S.invioInCorso ? "Accesso in corso…" : "Accedi"}</button></div>
+    </form></div>`;
 }
 
 function render(){
   const lettura = LETTURA.includes(V.tab);
   if (S.mode === "login" || S.mode === "negato"){
     document.querySelector(".nav").hidden = true;
+    document.querySelector(".masthead").hidden = true; document.querySelector(".foot").hidden = true;
+    document.querySelector(".g-app").classList.add("login");
     $("#filtri").innerHTML = ""; $("#stato-dati").innerHTML = ""; $("#azione-testata").innerHTML = "";
     $("#pag-sopra").textContent = "Report Finanziamenti"; $("#pag-titolo").textContent = "Report Finanziamenti";
     $("#pag-dek").textContent = "Contratti, immatricolazioni e finanziamenti per marchio, mese dopo mese.";
@@ -940,6 +958,8 @@ function render(){
     return;
   }
   document.querySelector(".nav").hidden = false;
+  document.querySelector(".masthead").hidden = false; document.querySelector(".foot").hidden = false;
+  document.querySelector(".g-app").classList.remove("login");
   $("#tab-inserisci").hidden = S.mode === "statico" || (S.mode === "db" && !S.owner);
   if (S.mode === "statico" && V.tab === "inserisci") return (V.tab = "panoramica", render());
   document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-pressed", b.getAttribute("data-tab") === V.tab));
