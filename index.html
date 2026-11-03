@@ -1110,7 +1110,8 @@ function render(){
   $("#stato-dati").innerHTML = (ks.length ? `Ultimo mese: <b>${esc(fmtMese(ks[ks.length-1]))}</b>${S.docs[ks[ks.length-1]].parziale ? " · in corso" : ""}${S.mode === "statico" && S.generato ? ` · copia del ${esc(S.generato)}` : ""}` : "")
     + (S.sb && S.email ? ` · ${esc(S.email)} · <button class="t" id="esci" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">Esci</button>` : "");
   $("#filtri").innerHTML = filtriBar();
-  $("#azione-testata").innerHTML = lettura && ks.length && S.downloads !== null ? `<button class="g-pdf t" id="scarica-pdf" ${V.pdfInCorso ? "disabled" : ""}><svg class="g-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>${V.pdfInCorso ? "Preparazione…" : "Report PDF"}</button>` : "";
+  /* il pulsante del PDF predefinito serve solo a chi non ha la pagina "Crea il report", cioè ai lettori (richiesta di Luca del 3/11) */
+  $("#azione-testata").innerHTML = lettura && ks.length && S.downloads !== null && !S.owner ? `<button class="g-pdf t" id="scarica-pdf" ${V.pdfInCorso ? "disabled" : ""}><svg class="g-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>${V.pdfInCorso ? "Preparazione…" : "Report PDF"}</button>` : "";
   $("#vista").className = lettura ? "lettura" : "lavoro";
   $("#vista").innerHTML = lettura ? vistaLettura() : V.tab === "crea" ? vistaCrea() : vistaInserisci();
   if (V.tab === "panoramica") disegnaGrafici();
