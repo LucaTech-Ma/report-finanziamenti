@@ -23,7 +23,7 @@ testo = BOZZA.read_text(encoding="utf-8")
 blocco = f'<script src="{LIBRERIA}"></script>\n<script>window.SUPABASE_CONFIG = {json.dumps(SUPABASE)};</script>\n'
 punto_script = testo.index("<script>\n(function(){")
 testo = testo[:punto_script] + blocco + testo[punto_script:]
-inizio_corpo = testo.index('<div class="wrap">')
+inizio_corpo = testo.index('<div class="wrap')  # dal 3/11/2026 il contenitore è <div class="wrap g-app">
 testa, corpo = testo[:inizio_corpo].strip(), testo[inizio_corpo:].strip()
 
 pagina = f"""<!doctype html>

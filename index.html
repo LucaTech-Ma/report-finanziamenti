@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-/* Stile "Executive Editorial" di Luca (2-aree/06-brand-personale-asset/identita/stile-frontend.md): testata da rivista, card piatte con filetto superiore, griglie a linee, serif per titoli e grandi numeri, mono per kicker, date e tabelle. Tema unico chiaro: carta e inchiostro. */
+/* Dal 3/11/2026 vale anche il blocco "nuovo design" in fondo a questo stile. Stile "Executive Editorial" di Luca (2-aree/06-brand-personale-asset/identita/stile-frontend.md): testata da rivista, card piatte con filetto superiore, griglie a linee, serif per titoli e grandi numeri, mono per kicker, date e tabelle. Tema unico chiaro: carta e inchiostro. */
 :root{
   --paper:#FAF8F5; --card:#FFFFFF; --deep:#F2EFE9;
   --ink:#141413; --ink-2:#57534E; --meta:#78716C;
@@ -174,28 +174,138 @@ tbody tr.tot td{border-top:1px solid var(--ink);border-bottom:2px solid var(--in
 @media (max-width:1000px){ .kpis{grid-template-columns:repeat(2,minmax(0,1fr))} .kpi:nth-child(2){border-right:0} .kpi:nth-child(-n+2){border-bottom:1px solid var(--s200)} .charts{grid-template-columns:1fr} }
 @media (max-width:760px){ .entry{grid-template-columns:1fr} .enav{display:flex;overflow-x:auto;border-top:2px solid var(--ink)} .navitem{white-space:nowrap;border-left:0;border-bottom:2px solid transparent} .navitem[aria-pressed="true"]{border-bottom-color:var(--accent)} .navitem .meta{display:none} }
 @media (max-width:460px){ .kpis{grid-template-columns:1fr} .kpi{border-right:0;border-bottom:1px solid var(--s200)} .kpi:last-child{border-bottom:0} }
+/* ==========================================================================
+   Dal 3/11/2026: nuovo design validato da Luca (stile-frontend.md, parte 6), lo stesso del cruscotto della concessionaria.
+   Guscio alla Google Workspace (barra che scorre via, chip, menu laterale), pagine di lettura a colori con la palette
+   a sei colori e la firma, titolo e numeri chiave per ogni pagina. "Inserisci un mese" è una pagina di lavoro:
+   identità di famiglia, angoli morbidi (scelta B).
+   ========================================================================== */
+:root{
+  --cobalto:#1F4FC4; --zafferano:#E8B024; --prugna:#8E3B73; --verde:#0B5D3B; --corallo:#E46A6A; --azzurro:#2E9CC4;
+  --firma:linear-gradient(90deg,#1F4FC4 0 16.66%,#E8B024 16.66% 33.33%,#8E3B73 33.33% 50%,#0B5D3B 50% 66.66%,#E46A6A 66.66% 83.33%,#2E9CC4 83.33% 100%);
+  --g-select:#E3EFE8; --g-hover:#EAE6DE; --g-line:#D6D3D1;
+}
+body{background:var(--deep)}
+.wrap.g-app{max-width:none;padding:0;display:block;gap:0}
+.g-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px 18px;padding-block:10px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.g-brand{display:flex;align-items:center;gap:10px;width:224px;flex:none}
+.g-logo{width:36px;height:36px;border-radius:10px;background:var(--accent);color:var(--paper);display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:19px}
+.g-name{font-family:var(--serif);font-weight:600;font-size:18px;letter-spacing:-.01em;white-space:nowrap}
+.g-filters{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0}
+.g-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.g-i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.chip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:1px solid var(--g-line);border-radius:8px;background:var(--card);color:var(--ink-2);font:inherit;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
+.chip:hover{background:var(--g-hover);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--g-select);border-color:var(--g-select);color:var(--accent);font-weight:700}
+.chip[aria-pressed="true"]::before{content:"✓";font-size:13px}
+.chip.selchip{padding:0 2px 0 12px;color:var(--ink)}
+.chip.selchip .sel select{border:0;background:transparent;font-family:var(--sans);font-size:14px;font-weight:600;padding:6px 26px 6px 4px}
+.chip.selchip .sel::after{right:9px}
+.chip.warn{border-color:var(--amber);color:var(--amber);cursor:default;font-size:12.5px;font-weight:600}
+.chip.warn:hover{background:var(--card)}
+.chip:focus-visible,.g-pdf:focus-visible,.g-side button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.g-pdf{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 20px 0 16px;border:0;border-radius:999px;background:var(--accent);color:#FFFFFF;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.g-pdf:hover{background:#094D31}
+.g-pdf:disabled{opacity:.6;cursor:default}
+.g-body{display:grid;grid-template-columns:240px minmax(0,1fr);align-items:start}
+.g-side{display:grid;gap:4px;padding:8px 12px 24px max(12px, env(safe-area-inset-left, 0px));border:0}
+@media (min-width:901px) and (min-height:620px){ .g-side{position:sticky;top:calc(env(safe-area-inset-top, 0px) + 16px)} }
+.g-side button{display:flex;align-items:center;gap:14px;width:100%;padding:10px 16px;margin:0;border:0;border-radius:999px;background:none;color:var(--ink-2);font:inherit;font-size:14.5px;font-weight:500;text-transform:none;letter-spacing:0;text-align:left;cursor:pointer}
+.g-side button:hover{background:var(--g-hover);color:var(--ink)}
+.g-side button[aria-pressed="true"]{background:var(--g-select);color:var(--accent);font-weight:700;border:0}
+.g-side .sep{height:1px;background:var(--s300);margin:8px 12px}
+.g-side .note{margin:10px 16px 0;font-size:12px;color:var(--meta);line-height:1.45}
+.g-main{background:var(--paper);border-radius:16px 0 0 0;min-width:0;display:grid;gap:32px;align-content:start;padding-block:28px 112px;padding-left:clamp(18px,3vw,40px);padding-right:max(clamp(18px,3vw,40px), env(safe-area-inset-right, 0px))}
+.g-main > *{min-width:0;max-width:1160px;width:100%}
+.masthead{gap:10px}
+.mast-top{position:relative;border-bottom:0;padding-bottom:16px}
+.mast-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:var(--firma)}
+.foot{position:relative;border-top:0;padding-top:18px}
+.foot::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--firma)}
+.kpi-v .kv-nome{font-size:clamp(1.5rem,2.4vw,2rem);overflow-wrap:anywhere}
+.manifesto{display:flex;gap:3px;min-height:120px}
+.manifesto span{display:flex;flex-direction:column;justify-content:flex-end;padding:14px;min-width:0;overflow:hidden;color:var(--ink);container-type:inline-size}
+.manifesto span.chiaro{color:#FFFFFF}
+.manifesto b{font-family:var(--serif);font-size:clamp(1.6rem,3.4vw,2.6rem);font-weight:600;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.manifesto small{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@container (max-width:84px){ .manifesto small{display:none} .manifesto b{font-size:1.05rem} }
+@container (max-width:40px){ .manifesto b{display:none} }
+.cb{position:relative;display:inline-flex;justify-content:flex-end;align-items:center;width:100%;min-width:84px;height:24px;padding-right:6px}
+.cb::before{content:"";position:absolute;left:0;top:3px;bottom:3px;width:var(--w);background:color-mix(in srgb, var(--c) 26%, transparent);border-right:3px solid var(--c)}
+.cb span{position:relative}
+.sq{display:inline-block;width:10px;height:10px;margin-right:8px;vertical-align:0}
+.panel.hl{border-top:4px solid var(--prugna)}
+.lavoro .panel{border:1px solid var(--g-line);border-radius:12px;overflow:hidden}
+.lavoro .panel-h .kicker{font-family:var(--sans);font-size:11.5px;letter-spacing:.04em;text-transform:none;color:var(--ink-2);font-weight:600}
+.lavoro h3{font-family:var(--sans);font-size:15.5px;font-weight:700;letter-spacing:0}
+.lavoro .sub{font-family:var(--sans);font-style:normal;font-size:13px}
+.lavoro .field label{font-family:var(--sans);font-size:12.5px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--ink-2)}
+.lavoro .inp{border-radius:8px;height:40px;border-color:var(--g-line)}
+.lavoro .inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--g-select);outline:none}
+.lavoro .sum{border-radius:8px;background:var(--g-select);color:var(--ink)}
+.lavoro .etop{border:0;padding:0}
+.lavoro .etop .flabel{font-family:var(--sans);font-size:12.5px;font-weight:600;text-transform:none;letter-spacing:0}
+.lavoro .sel select{border-radius:8px;height:40px;border-color:var(--g-line);font-family:var(--sans);font-size:14px}
+.lavoro .badge{border-radius:999px;font-family:var(--sans);font-size:12px;text-transform:none;letter-spacing:0;padding:6px 12px}
+.lavoro .entry{grid-template-columns:minmax(0,1fr);gap:18px}
+.lavoro .enav{display:flex;flex-wrap:wrap;gap:8px;border:0;overflow:visible}
+.lavoro .navitem{border:1px solid var(--g-line);border-radius:8px;background:var(--card);padding:8px 14px;gap:10px;align-items:center;font-size:14px;white-space:nowrap}
+.lavoro .navitem[aria-pressed="true"]{background:var(--g-select);border-color:var(--g-select);color:var(--accent)}
+.lavoro .navitem .mark{color:var(--g-line)}
+.lavoro .navitem.done .mark{color:var(--accent)}
+.lavoro .btn{border-radius:999px;text-transform:none;letter-spacing:0;font-size:14px;padding:9px 18px}
+.lavoro .btn.primary{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.lavoro .btn.primary:hover{background:#094D31;border-color:#094D31}
+.lavoro .actionbar{border:1px solid var(--g-line);border-radius:14px;box-shadow:0 4px 16px rgba(20,20,19,.10)}
+.lavoro .actionbar .left{font-family:var(--sans);font-style:normal;font-size:13px}
+.lavoro .sec-head h2{font-family:var(--sans);font-weight:700;font-size:1.3rem;letter-spacing:0}
+.lavoro .sec-head .kicker{font-family:var(--sans);text-transform:none;letter-spacing:.02em;font-size:12px}
+.toast{border:0;border-radius:8px;background:var(--ink);color:var(--paper);box-shadow:0 6px 18px rgba(20,20,19,.25)}
+.toast .kicker{color:#9FD3B6}
+.toast span{color:#E7E5E4}
+.toast.err .kicker{color:#F3C77A}
+@media (max-width:900px){
+  .g-brand{width:auto}
+  .g-filters{order:3;flex-basis:100%}
+  .g-body{grid-template-columns:minmax(0,1fr)}
+  .g-side{grid-auto-flow:column;grid-auto-columns:max-content;overflow-x:auto;padding:4px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px));scrollbar-width:none}
+  .g-side button{padding:8px 14px}
+  .g-side .sep,.g-side .note{display:none}
+  .g-main{border-radius:16px 16px 0 0}
+}
+@media (max-width:520px){ .g-name{display:none} .g-side button .g-i{display:none} }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="masthead">
-    <div class="mast-top"><span>Gruppo Autoimport · Report direzionale</span><span id="stato-dati"></span></div>
-    <div class="mast-title">
-      <div>
-        <h1>Report Finanziamenti</h1>
-        <p class="dek">Contratti, immatricolazioni e finanziamenti per marchio, mese dopo mese.</p>
-      </div>
-      <span id="azione-testata"></span>
-    </div>
-    <nav class="nav" aria-label="Sezioni">
-      <button id="tab-cruscotto" class="t" aria-pressed="true">Cruscotto</button>
-      <button id="tab-inserisci" class="t" aria-pressed="false">Inserisci un mese</button>
-    </nav>
+<div class="wrap g-app">
+  <header class="g-bar">
+    <div class="g-brand"><span class="g-logo" aria-hidden="true">A</span><span class="g-name">Gruppo Autoimport</span></div>
+    <div class="g-filters" id="filtri"></div>
+    <div class="g-right"><span id="azione-testata"></span></div>
   </header>
-  <div id="vista" style="display:grid;gap:32px"></div>
-  <div class="foot">
-    <p><b>Come si leggono i numeri.</b> Nei periodi di più mesi i conteggi si sommano e le percentuali si ricalcolano sui totali. Il confronto è con il periodo precedente: il mese prima, il trimestre prima, l'anno prima. Un mese in corso non viene confrontato sui conteggi.</p>
-    <p><b>Differenze con il foglio Excel.</b> Qui Leapmotor e CA + Leasys entrano nei totali di gruppo e nei finanziamenti; alcune formule del foglio li escludevano o davano errore (#RIF!).</p>
+  <div class="g-body">
+    <nav class="g-side nav" id="menu" aria-label="Sezioni">
+      <button class="t" data-tab="panoramica" aria-pressed="true"><svg class="g-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg><span>Panoramica</span></button>
+      <button class="t" data-tab="marchi" aria-pressed="false"><svg class="g-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>Marchi</span></button>
+      <button class="t" data-tab="credito" aria-pressed="false"><svg class="g-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg><span>Credito</span></button>
+      <div class="sep" aria-hidden="true"></div>
+      <button class="t" id="tab-inserisci" data-tab="inserisci" aria-pressed="false"><svg class="g-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h8M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg><span>Inserisci un mese</span></button>
+      <p class="note">Report Finanziamenti · i mesi si inseriscono uno alla volta</p>
+    </nav>
+    <main class="g-main">
+      <header class="masthead">
+        <div class="mast-top"><span id="pag-sopra">Report Finanziamenti</span><span id="stato-dati"></span></div>
+        <div>
+          <h1 id="pag-titolo">Report Finanziamenti</h1>
+          <p class="dek" id="pag-dek">Contratti, immatricolazioni e finanziamenti per marchio, mese dopo mese.</p>
+        </div>
+      </header>
+      <div id="vista" style="display:grid;gap:32px"></div>
+      <div class="foot">
+        <p><b>Come si leggono i numeri.</b> Nei periodi di più mesi i conteggi si sommano e le percentuali si ricalcolano sui totali. Il confronto è con il periodo precedente: il mese prima, il trimestre prima, l'anno prima. Un mese in corso non viene confrontato sui conteggi.</p>
+        <p><b>Differenze con il foglio Excel.</b> Qui Leapmotor e CA + Leasys entrano nei totali di gruppo e nei finanziamenti; alcune formule del foglio li escludevano o davano errore (#RIF!).</p>
+      </div>
+    </main>
   </div>
 </div>
 <div id="toast-slot"></div>
@@ -226,6 +336,19 @@ const PERIMETRI = [{k:"gruppo", t:"Gruppo", m:MARCHI.map(m=>m.k)}, {k:"stellanti
 const FIN_GRUPPO = [["sfs","SFS"],["agos_nuovo","Agos nuovo"],["agos_km0","Agos km 0"],["ca_leasys","CA + Leasys"],["marchio_nuovo","Finanziaria del marchio, nuovo"],["marchio_km0","Finanziaria del marchio, km 0"]];
 const MESI_IT = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
 
+/* ---------- nuovo design (3/11/2026): colori e pagine ---------- */
+const COL = {cobalto:"#1F4FC4", zafferano:"#E8B024", prugna:"#8E3B73", verde:"#0B5D3B", corallo:"#E46A6A", azzurro:"#2E9CC4"};
+// Colore di ogni marchio: il più vicino al colore del marchio fra i sei validati (proposta del 3/11, da validare).
+// Il secondo valore dice se sopra il colore si scrive in bianco.
+const COL_MARCHIO = {opel:[COL.zafferano,false], peugeot:[COL.cobalto,true], citroen:[COL.corallo,false], suzuki:[COL.azzurro,false], mazda:[COL.prugna,true], leapmotor:[COL.verde,true]};
+const PAGINE = {
+  panoramica:{t:"Contratti e finanziamenti del periodo", d:"Quanti contratti, quante immatricolazioni e quanto si finanzia, rispetto al periodo prima."},
+  marchi:{t:"Come si dividono i marchi", d:"Chi porta più contratti e chi finanzia di più, marchio per marchio."},
+  credito:{t:"Finanziarie, captive e Agos", d:"Come si dividono i finanziamenti e quanto pesano captive, Agos e loyalty."},
+  inserisci:{t:"Inserisci un mese", d:"Gli stessi campi del foglio mensile, marchio per marchio."}
+};
+const LETTURA = ["panoramica","marchi","credito"];
+
 /* ---------- aiuti ---------- */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -248,7 +371,7 @@ function selectBox(id, opzioni, label){ return `<div class="sel"><select id="${i
 
 /* ---------- stato ---------- */
 const S = {docs:{}, mode:"loading", coll:null, owner:false};
-const V = {tab:"cruscotto", gran:"mese", periodo:null, perimetro:"gruppo"};
+const V = {tab:"panoramica", gran:"mese", periodo:null, perimetro:"gruppo"};
 const E = {mese:null, marchio:"opel", draft:null, conferma:false, salvataggio:false};
 let toastTimer = null;
 function toast(titolo, testo, err){
@@ -344,42 +467,80 @@ function scheletro(){
 }
 function vuoto(kick, titolo, testo, azione){ return `<div class="panel"><div class="empty"><p class="kicker">${esc(kick)}</p><h3>${esc(titolo)}</h3><p>${esc(testo)}</p>${azione || ""}</div></div>`; }
 
-function vistaCruscotto(){
+function filtriBar(){
+  if (!LETTURA.includes(V.tab) || !chiavi().length || (S.mode !== "db" && S.mode !== "statico")) return "";
+  const {ps, P, per} = periodoCorrente(), a = aggrega(P.keys, per.m);
+  const cal = `<svg class="g-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>`;
+  return [["mese","Mese"],["trimestre","Trimestre"],["anno","Anno"],["12m","Ultimi 12 mesi"]].map(([k,t])=>`<button class="chip t" data-gran="${k}" aria-pressed="${V.gran===k}">${t}</button>`).join("")
+    + `<label class="chip selchip">${cal}${ps.length > 1 ? selectBox("sel-periodo", ps.map(p=>`<option value="${p.id}"${p.id===V.periodo?" selected":""}>${esc(p.label)}</option>`).join(""), "Periodo") : `<span style="padding:0 10px 0 4px;font-weight:600">${esc(P.label)}</span>`}</label>`
+    + `<label class="chip selchip">${selectBox("sel-perimetro", PERIMETRI.map(x=>`<option value="${x.k}"${x.k===V.perimetro?" selected":""}>${x.t}</option>`).join(""), "Perimetro")}</label>`
+    + (a.parziale ? `<span class="chip warn">Include un mese in corso</span>` : "");
+}
+
+function vistaLettura(){
   const ks = chiavi();
   if (S.mode === "loading") return scheletro();
   if (S.mode === "assente") return S.sb ? vuoto("Dati", "Dati non raggiungibili", "Non riesco a leggere i dati in questo momento. Ricarica la pagina tra qualche istante.") : vuoto("Dati", "Dati non disponibili qui", "I dati si vedono aprendo la pagina su claude.ai.");
   if (!ks.length) return vuoto("Dati", "Nessun mese caricato", S.owner ? "Inizia inserendo il primo mese." : "Il proprietario non ha ancora inserito dati.", S.owner ? `<div><button class="btn primary t" id="vai-inserisci">Inserisci un mese</button></div>` : "");
-  const {ps, P, per} = periodoCorrente();
+  const {P, per} = periodoCorrente();
   const a = aggrega(P.keys, per.m), c = P.cmpOk ? aggrega(P.cmp, per.m) : null;
-  const filtri = `<div class="filters">
-      <div class="fgroup"><span class="flabel">Periodo</span><div class="seg" role="group" aria-label="Tipo di periodo">${[["mese","Mese"],["trimestre","Trimestre"],["anno","Anno"],["12m","Ultimi 12 mesi"]].map(([k,t])=>`<button class="t" data-gran="${k}" aria-pressed="${V.gran===k}">${t}</button>`).join("")}</div></div>
-      <div class="fgroup"><span class="flabel">Quale</span>${ps.length > 1 ? selectBox("sel-periodo", ps.map(p=>`<option value="${p.id}"${p.id===V.periodo?" selected":""}>${esc(p.label)}</option>`).join(""), "Periodo") : `<span class="num" style="padding:7px 0">${esc(P.label)}</span>`}</div>
-      <div class="fgroup"><span class="flabel">Perimetro</span>${selectBox("sel-perimetro", PERIMETRI.map(x=>`<option value="${x.k}"${x.k===V.perimetro?" selected":""}>${x.t}</option>`).join(""), "Perimetro")}</div>
-      ${a.parziale ? `<span class="badge crit">Include un mese in corso</span>` : ""}
-    </div>`;
   const lab = P.cmpOk ? P.cmpLabel : "";
-  const intro = `<div class="sec-head"><div><p class="kicker">${esc(per.t === "Gruppo" ? "Tutto il gruppo" : per.t)} · ${esc(P.label)}</p><h2>I numeri del periodo</h2></div></div>`;
+  const nota = P.cmpOk ? "" : `<p class="note-band">Nessun confronto: manca il periodo precedente.</p>`;
+  if (V.tab === "marchi") return paginaMarchi(P, per, a, c, lab, nota);
+  if (V.tab === "credito") return paginaCredito(P, per, a, c, lab, nota);
   const kpi = `<div class="kpis">
       ${kpiCell("Contratti", fmt(a.v_t), `${fmt(a.v_n)} nuovo · ${fmt(a.v_k)} km 0`, delta(a.v_t, c && c.v_t, false, lab, a.parziale))}
       ${kpiCell("Immatricolazioni", fmt(a.i_t), `${fmt(a.i_n)} nuovo · ${fmt(a.i_k)} km 0 / demo`, delta(a.i_t, c && c.i_t, false, lab, a.parziale))}
       ${kpiCell("Finanziamenti", fmt(a.fin_t), `${fmt(a.fin_n)} nuovo · ${fmt(a.fin_k)} km 0`, delta(a.fin_t, c && c.fin_t, false, lab, a.parziale))}
       ${kpiCell("Penetrazione", fmtP(a.pen), "finanziamenti su contratti", delta(a.pen, c && c.pen, true, lab))}
-    </div>${P.cmpOk ? "" : `<p class="note-band">Nessun confronto: manca il periodo precedente.</p>`}`;
+    </div>${nota}`;
   const grafici = `<div class="charts">
-      <div class="panel"><div class="panel-h"><div><p class="kicker">Andamento</p><h3>Contratti per mese</h3><p class="sub">Ultimi 24 mesi, in pieno il periodo scelto</p></div><div class="legend"><span><i style="background:var(--oxford)"></i>Nuovo</span><span><i style="background:var(--amber)"></i>Km 0</span></div></div><div class="panel-b"><div class="chart" id="ch-contratti"></div><div class="tip" hidden></div></div></div>
-      <div class="panel"><div class="panel-h"><div><p class="kicker">Andamento</p><h3>Penetrazione finanziamenti</h3><p class="sub">Finanziamenti su contratti, mese per mese</p></div><div class="legend"><span><i class="line" style="background:var(--accent)"></i>Penetrazione</span></div></div><div class="panel-b"><div class="chart" id="ch-pen"></div><div class="tip" hidden></div></div></div>
+      <div class="panel"><div class="panel-h"><div><p class="kicker">Andamento</p><h3>Contratti per mese</h3><p class="sub">Ultimi 24 mesi, in pieno il periodo scelto</p></div><div class="legend"><span><i style="background:var(--cobalto)"></i>Nuovo</span><span><i style="background:var(--zafferano)"></i>Km 0</span></div></div><div class="panel-b"><div class="chart" id="ch-contratti"></div><div class="tip" hidden></div></div></div>
+      <div class="panel"><div class="panel-h"><div><p class="kicker">Andamento</p><h3>Penetrazione finanziamenti</h3><p class="sub">Finanziamenti su contratti, mese per mese</p></div></div><div class="panel-b"><div class="chart" id="ch-pen"></div><div class="tip" hidden></div></div></div>
     </div>`;
-  return filtri + intro + kpi + grafici + (per.m.length > 1 ? tabellaMarchi(P, per) : "") + dettaglio(a, per);
+  return kpi + grafici;
+}
+
+function paginaMarchi(P, per, a, c, lab, nota){
+  if (per.m.length < 2) return vuoto("Marchi", `Hai scelto solo ${per.t}`, "Il confronto tra marchi ha senso sul gruppo o su Stellantis.", `<div><button class="btn primary t" data-perimetro="gruppo">Mostra tutto il gruppo</button></div>`);
+  const righeM = per.m.map(k=>({k, M:MK[k], a:aggrega(P.keys, [k]), c:P.cmpOk ? aggrega(P.cmp, [k]) : null}));
+  const perContratti = righeM.slice().sort((x,y)=>y.a.v_t - x.a.v_t);
+  const conPen = righeM.filter(r=>r.a.v_t >= 5 && r.a.pen != null).sort((x,y)=>y.a.pen - x.a.pen);
+  const primo = perContratti[0], alta = conPen[0], bassa = conPen.length > 1 ? conPen[conPen.length-1] : null;
+  const nome = t => `<span class="kv-nome">${esc(t)}</span>`;
+  const kpi = `<div class="kpis">
+      ${kpiCell("Marchio con più contratti", nome(primo.M.t), `${fmt(primo.a.v_t)} contratti · ${fmtP(pct(primo.a.v_t, a.v_t))} del totale`, delta(primo.a.v_t, primo.c && primo.c.v_t, false, lab, a.parziale))}
+      ${kpiCell("Penetrazione più alta", alta ? nome(alta.M.t) : "—", alta ? `${fmtP(alta.a.pen)} dei contratti con finanziamento` : "servono almeno 5 contratti", alta ? delta(alta.a.pen, alta.c && alta.c.pen, true, lab) : "")}
+      ${kpiCell("Penetrazione più bassa", bassa ? nome(bassa.M.t) : "—", bassa ? `${fmtP(bassa.a.pen)} dei contratti con finanziamento` : "servono almeno due marchi con 5 contratti", bassa ? delta(bassa.a.pen, bassa.c && bassa.c.pen, true, lab) : "")}
+      ${kpiCell("Contratti", fmt(a.v_t), `${per.m.length} marchi`, delta(a.v_t, c && c.v_t, false, lab, a.parziale))}
+    </div>${nota}`;
+  const tot = a.v_t || 1;
+  const manifesto = `<section style="display:grid;gap:14px"><div class="sec-head"><div><p class="kicker">Quote</p><h2>Chi porta i contratti</h2><p class="sub">Quota di ogni marchio sui contratti del periodo</p></div></div>
+    <div class="manifesto" role="img" aria-label="Quota dei contratti per marchio">${perContratti.filter(r=>r.a.v_t > 0).map(r=>{ const [col, chiaro] = COL_MARCHIO[r.k]; return `<span class="${chiaro ? "chiaro" : ""}" style="flex:${r.a.v_t} 1 0;background:${col}" title="${esc(r.M.t)}: ${fmt(r.a.v_t)} contratti, ${fmtP(pct(r.a.v_t, tot))}"><b>${fmtP(pct(r.a.v_t, tot))}</b><small>${esc(r.M.t)}</small></span>`; }).join("")}</div></section>`;
+  return kpi + manifesto + tabellaMarchi(P, per);
+}
+
+function paginaCredito(P, per, a, c, lab, nota){
+  const kpi = `<div class="kpis">
+      ${kpiCell("Finanziamenti", fmt(a.fin_t), `penetrazione ${fmtP(a.pen)} dei contratti`, delta(a.fin_t, c && c.fin_t, false, lab, a.parziale))}
+      ${kpiCell("Captive", fmt(a.capt_t), `${fmtP(pct(a.capt_t, a.fin_t))} dei finanziamenti`, delta(pct(a.capt_t, a.fin_t), c && pct(c.capt_t, c.fin_t), true, lab))}
+      ${kpiCell("Agos", fmt(a.ag_t), `${fmtP(pct(a.ag_t, a.fin_t))} dei finanziamenti`, delta(pct(a.ag_t, a.fin_t), c && pct(c.ag_t, c.fin_t), true, lab))}
+      ${kpiCell("Loyalty", fmt(a.loy), `${fmtP(pct(a.loy, a.v_t))} dei contratti`, delta(pct(a.loy, a.v_t), c && pct(c.loy, c.v_t), true, lab))}
+    </div>${nota}`;
+  return kpi + dettaglio(a, per);
 }
 
 function tabellaMarchi(P, per){
   const tot = aggrega(P.keys, per.m), gr = aggrega(P.keys, MARCHI.map(m=>m.k));
-  const riga = (nome, a, cls, k) => `<tr class="${cls||""}"${k?` data-perimetro="${k}" tabindex="0"`:""}><td>${esc(nome)}</td><td>${fmt(a.v_n)}</td><td>${fmt(a.v_k)}</td><td>${fmt(a.v_t)}</td><td class="dim">${fmtP(pct(a.v_t, gr.v_t))}</td><td>${fmt(a.i_t)}</td><td>${fmt(a.fin_t)}</td><td>${fmtP(a.pen)}</td><td>${fmt(a.capt_t)}</td><td>${fmt(a.ag_t)}</td><td>${fmt(a.loy)}</td><td>${fmt(a.leasing)}</td><td>${fmt(a.rental)}</td><td>${fmt(a.liq)}</td><td class="dim">${fmtP(a.liq_p)}</td></tr>`;
-  return `<section style="display:grid;gap:14px"><div class="sec-head"><div><p class="kicker">Confronto</p><h2>Per marchio</h2><p class="sub">Clicca un marchio per aprirne il dettaglio</p></div></div>
+  const righeM = per.m.map(k=>({k, a:aggrega(P.keys, [k])}));
+  const maxV = Math.max(1, ...righeM.map(r=>r.a.v_t));
+  const barra = (testo, quota, col) => `<span class="cb" style="--w:${Math.max(0, Math.min(1, quota)) * 100}%;--c:${col}"><span>${testo}</span></span>`;
+  const riga = (nome, a, cls, k) => `<tr class="${cls||""}"${k?` data-perimetro="${k}" tabindex="0"`:""}><td>${k ? `<span class="sq" style="background:${COL_MARCHIO[k][0]}"></span>` : ""}${esc(nome)}</td><td>${fmt(a.v_n)}</td><td>${fmt(a.v_k)}</td><td>${k ? barra(fmt(a.v_t), a.v_t / maxV, COL_MARCHIO[k][0]) : fmt(a.v_t)}</td><td class="dim">${fmtP(pct(a.v_t, gr.v_t))}</td><td>${fmt(a.i_t)}</td><td>${fmt(a.fin_t)}</td><td>${k && a.pen != null ? barra(fmtP(a.pen), a.pen / 100, COL.prugna) : fmtP(a.pen)}</td><td>${fmt(a.capt_t)}</td><td>${fmt(a.ag_t)}</td><td>${fmt(a.loy)}</td><td>${fmt(a.leasing)}</td><td>${fmt(a.rental)}</td><td>${fmt(a.liq)}</td><td class="dim">${fmtP(a.liq_p)}</td></tr>`;
+  return `<section style="display:grid;gap:14px"><div class="sec-head"><div><p class="kicker">Tabella</p><h2>Tutti i numeri per marchio</h2><p class="sub">Clicca un marchio per vederlo da solo</p></div></div>
     <div class="tw"><table>
     <thead><tr class="grp"><th></th><th colspan="4" style="text-align:center">Contratti</th><th></th><th colspan="2" style="text-align:center">Finanziamenti</th><th colspan="7"></th></tr>
     <tr><th>Marchio</th><th>Nuovo</th><th>Km 0</th><th>Totale</th><th>Quota</th><th>Immatric.</th><th>Totale</th><th>Penetr.</th><th>Captive</th><th>Agos</th><th>Loyalty</th><th>Leasing</th><th>Rental</th><th>Liquidaz.</th><th>% immatric.</th></tr></thead>
-    <tbody>${per.m.map(k=>riga(MK[k].t, aggrega(P.keys, [k]), "click t", k)).join("")}${riga("Totale " + per.t.toLowerCase(), tot, "tot")}</tbody></table></div></section>`;
+    <tbody>${righeM.map(r=>riga(MK[r.k].t, r.a, "click t", r.k)).join("")}${riga("Totale " + per.t.toLowerCase(), tot, "tot")}</tbody></table></div></section>`;
 }
 
 function righe(list){ return `<div class="kv">${list.map(([l, v, p, cls])=>`<div class="r${cls?" "+cls:""}"><span>${esc(l)}</span><span><b>${typeof v === "string" ? v : fmt(v)}</b>${p != null ? `<span class="p">${fmtP(p)}</span>` : ""}</span></div>`).join("")}</div>`; }
@@ -422,9 +583,9 @@ function graficoContratti(dati, sel){
     const x = L + i*bw + gap/2, bwi = Math.max(2, bw - gap);
     const hn = h * d.n / sc.max, hk = h * d.km / sc.max, on = sel.has(d.k);
     const yN = T + h - hn, yK = yN - hk - (hk > 0 && hn > 0 ? 1.5 : 0);
-    s += `<g class="bar${on ? " on" : ""}" data-i="${i}" opacity="${on ? 1 : .35}">`;
-    if (hn > 0) s += `<rect x="${x}" y="${yN}" width="${bwi}" height="${hn}" fill="#1E3A5F"/>`;
-    if (hk > 0) s += `<rect x="${x}" y="${yK}" width="${bwi}" height="${hk}" fill="#B45309"/>`;
+    s += `<g class="bar${on ? " on" : ""}" data-i="${i}" opacity="${on ? 1 : .3}">`;
+    if (hn > 0) s += `<rect x="${x}" y="${yN}" width="${bwi}" height="${hn}" fill="${COL.cobalto}"/>`;
+    if (hk > 0) s += `<rect x="${x}" y="${yK}" width="${bwi}" height="${hk}" fill="${COL.zafferano}"/>`;
     if (d.parz) s += `<text x="${x+bwi/2}" y="${yK-5}" text-anchor="middle" ${AX}>parz.</text>`;
     s += `</g>`;
     if (i % 3 === (dati.length-1) % 3) s += `<text x="${x+bwi/2}" y="${H-6}" text-anchor="middle" ${AX}>${fmtMeseBreve(d.k)}</text>`;
@@ -440,11 +601,11 @@ function graficoPen(dati, sel){
   const y = v => T + h - h * v / sc.max;
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Penetrazione dei finanziamenti per mese">`;
   for (let i=0;i<=4;i++){ const yy = T + h - h*i/4; s += `<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="${i ? "#E7E5E4" : "#141413"}" stroke-width="1"/><text x="${L-8}" y="${yy+4}" text-anchor="end" ${AX}>${fmtNum(sc.step*i)}%</text>`; }
-  let path = "";
-  dati.forEach((d, i)=>{ if (d.pen == null) return; path += (path ? " L" : "M") + `${x(i).toFixed(1)},${y(d.pen).toFixed(1)}`; });
-  if (path) s += `<path d="${path}" fill="none" stroke="#0B5D3B" stroke-width="2"/>`;
+  let path = "", primoX = null, ultimoX = null;
+  dati.forEach((d, i)=>{ if (d.pen == null) return; path += (path ? " L" : "M") + `${x(i).toFixed(1)},${y(d.pen).toFixed(1)}`; if (primoX == null) primoX = x(i); ultimoX = x(i); });
+  if (path) s += `<path d="${path} L${ultimoX.toFixed(1)},${(T + h).toFixed(1)} L${primoX.toFixed(1)},${(T + h).toFixed(1)} Z" fill="${COL.prugna}" fill-opacity=".12"/><path d="${path}" fill="none" stroke="${COL.prugna}" stroke-width="2.5" stroke-linejoin="round"/>`;
   dati.forEach((d, i)=>{
-    if (d.pen != null){ const on = sel.has(d.k); s += `<rect x="${(x(i) - (on ? 4 : 3)).toFixed(1)}" y="${(y(d.pen) - (on ? 4 : 3)).toFixed(1)}" width="${on ? 8 : 6}" height="${on ? 8 : 6}" fill="${on ? "#0B5D3B" : "#FFFFFF"}" stroke="#0B5D3B" stroke-width="1.5"/>`; }
+    if (d.pen != null){ const on = sel.has(d.k); s += `<rect x="${(x(i) - (on ? 4 : 3)).toFixed(1)}" y="${(y(d.pen) - (on ? 4 : 3)).toFixed(1)}" width="${on ? 8 : 6}" height="${on ? 8 : 6}" fill="${on ? COL.prugna : "#FFFFFF"}" stroke="${COL.prugna}" stroke-width="1.5"/>`; }
     if (i % 3 === (dati.length-1) % 3) s += `<text x="${x(i).toFixed(1)}" y="${H-6}" text-anchor="middle" ${AX}>${fmtMeseBreve(d.k)}</text>`;
     const bw = dati.length > 1 ? w/(dati.length-1) : w;
     s += `<rect class="hit" data-i="${i}" x="${(x(i)-bw/2).toFixed(1)}" y="${T}" width="${bw.toFixed(1)}" height="${h}" fill="transparent"/>`;
@@ -456,7 +617,7 @@ function disegnaGrafici(){
   const cur = periodoCorrente(); if (!cur) return;
   const dati = serie(cur.per), sel = new Set(cur.P.keys);
   c1.innerHTML = graficoContratti(dati, sel); c2.innerHTML = graficoPen(dati, sel);
-  const tipC = d => `<div class="k">${esc(fmtMese(d.k))}${d.parz ? " · parziale" : ""}</div><div class="row"><span><span class="sw" style="background:#1E3A5F"></span>Nuovo</span><span>${fmt(d.n)}</span></div><div class="row"><span><span class="sw" style="background:#B45309"></span>Km 0</span><span>${fmt(d.km)}</span></div><div class="row"><span>Totale</span><span>${fmt(d.n + d.km)}</span></div>`;
+  const tipC = d => `<div class="k">${esc(fmtMese(d.k))}${d.parz ? " · parziale" : ""}</div><div class="row"><span><span class="sw" style="background:${COL.cobalto}"></span>Nuovo</span><span>${fmt(d.n)}</span></div><div class="row"><span><span class="sw" style="background:${COL.zafferano}"></span>Km 0</span><span>${fmt(d.km)}</span></div><div class="row"><span>Totale</span><span>${fmt(d.n + d.km)}</span></div>`;
   const tipP = d => `<div class="k">${esc(fmtMese(d.k))}${d.parz ? " · parziale" : ""}</div><div class="row"><span>Penetrazione</span><span>${fmtP(d.pen)}</span></div><div class="row"><span>Finanziamenti</span><span>${fmt(d.fin)}</span></div><div class="row"><span>Contratti</span><span>${fmt(d.n + d.km)}</span></div>`;
   [[c1, tipC], [c2, tipP]].forEach(([c, testo])=>{
     const tip = c.parentElement.querySelector(".tip");
@@ -597,7 +758,7 @@ async function salva(){
 }
 
 /* ---------- report PDF (stile editoriale: Times per titoli e numeri, Courier per kicker e tabelle) ---------- */
-const PDFC = {paper:"#FAF8F5", card:"#FFFFFF", deep:"#F2EFE9", ink:"#141413", ink2:"#57534E", meta:"#78716C", s200:"#E7E5E4", s800:"#292524", accent:"#0B5D3B", oxford:"#1E3A5F", amber:"#B45309"};
+const PDFC = {paper:"#FAF8F5", card:"#FFFFFF", deep:"#F2EFE9", ink:"#141413", ink2:"#57534E", meta:"#78716C", s200:"#E7E5E4", s800:"#292524", accent:"#0B5D3B", oxford:"#1F4FC4", amber:"#E8B024", prugna:"#8E3B73"};
 function variazione(cur, prev, punti){
   if (prev == null || cur == null || !Number.isFinite(cur) || !Number.isFinite(prev)) return null;
   if (punti) return cur - prev;
@@ -662,15 +823,15 @@ function costruisciPDF(jsPDF, P, per, a, c){
   const cw = (CW - 6) / 2, chh = 58, cy = y + 2;
   const box = (x0, titolo) => { pannello(x0, cy, cw, chh); T(titolo, x0 + 4, cy + 6.5, "times", "bold", 10, PDFC.ink); };
   box(M, "Contratti per mese");
-  T("NUOVO", M + cw - 26, cy + 6.5, "courier", "bold", 6, PDFC.oxford); T("KM 0", M + cw - 10, cy + 6.5, "courier", "bold", 6, PDFC.amber);
+  doc.setFillColor(PDFC.oxford); doc.rect(M + cw - 30, cy + 4.4, 2.2, 2.2, "F"); T("NUOVO", M + cw - 27, cy + 6.5, "courier", "bold", 6, PDFC.ink2); doc.setFillColor(PDFC.amber); doc.rect(M + cw - 14, cy + 4.4, 2.2, 2.2, "F"); T("KM 0", M + cw - 11, cy + 6.5, "courier", "bold", 6, PDFC.ink2);
   const gx = M + 12, gy = cy + 11, gw = cw - 16, gh = chh - 20;
   const sc1 = scala(Math.max(1, ...dati.map(d=>d.n + d.km)));
   for (let i=0;i<=4;i++){ const yy = gy + gh - gh*i/4; doc.setDrawColor(i ? PDFC.s200 : PDFC.ink); doc.setLineWidth(i ? 0.15 : 0.3); doc.line(gx, yy, gx + gw, yy); T(fmtNum(sc1.step*i), gx - 1.5, yy + 1, "courier", "normal", 5.8, PDFC.meta, {align:"right"}); }
   const bw = gw / dati.length;
   dati.forEach((d, i)=>{
     const x = gx + i*bw + bw*0.18, w = bw*0.64, hn = gh * d.n / sc1.max, hk = gh * d.km / sc1.max, on = sel.has(d.k);
-    doc.setFillColor(on ? PDFC.oxford : "#A5B4C8"); if (hn > 0) doc.rect(x, gy + gh - hn, w, hn, "F");
-    doc.setFillColor(on ? PDFC.amber : "#E2C29F"); if (hk > 0) doc.rect(x, gy + gh - hn - hk, w, hk, "F");
+    doc.setFillColor(on ? PDFC.oxford : "#B4C6EE"); if (hn > 0) doc.rect(x, gy + gh - hn, w, hn, "F");
+    doc.setFillColor(on ? PDFC.amber : "#F4DFA6"); if (hk > 0) doc.rect(x, gy + gh - hn - hk, w, hk, "F");
     if (i % 2 === 1 || dati.length <= 6) T(fmtMeseBreve(d.k), x + w/2, gy + gh + 4, "courier", "normal", 5.5, PDFC.meta, {align:"center"});
   });
   const x2 = M + cw + 6;
@@ -679,11 +840,11 @@ function costruisciPDF(jsPDF, P, per, a, c){
   const sc2 = scala(Math.max(10, ...dati.map(d=>d.pen).filter(v=>v != null)));
   for (let i=0;i<=4;i++){ const yy = gy + gh - gh*i/4; doc.setDrawColor(i ? PDFC.s200 : PDFC.ink); doc.setLineWidth(i ? 0.15 : 0.3); doc.line(px, yy, px + pw, yy); T(fmtNum(sc2.step*i) + "%", px - 1.5, yy + 1, "courier", "normal", 5.8, PDFC.meta, {align:"right"}); }
   const xp = i => px + (dati.length === 1 ? pw/2 : pw * i / (dati.length - 1)), yp = v => gy + gh - gh * v / sc2.max;
-  doc.setDrawColor(PDFC.accent); doc.setLineWidth(0.6);
+  doc.setDrawColor(PDFC.prugna); doc.setLineWidth(0.6);
   let prev = null;
   dati.forEach((d, i)=>{ if (d.pen == null){ prev = null; return; } const pt = [xp(i), yp(d.pen)]; if (prev) doc.line(prev[0], prev[1], pt[0], pt[1]); prev = pt; });
   dati.forEach((d, i)=>{
-    if (d.pen != null){ const on = sel.has(d.k), s = on ? 1.1 : 0.8; doc.setFillColor(on ? PDFC.accent : PDFC.card); doc.setDrawColor(PDFC.accent); doc.setLineWidth(0.35); doc.rect(xp(i) - s, yp(d.pen) - s, 2*s, 2*s, "FD"); }
+    if (d.pen != null){ const on = sel.has(d.k), s = on ? 1.1 : 0.8; doc.setFillColor(on ? PDFC.prugna : PDFC.card); doc.setDrawColor(PDFC.prugna); doc.setLineWidth(0.35); doc.rect(xp(i) - s, yp(d.pen) - s, 2*s, 2*s, "FD"); }
     if (i % 2 === 1 || dati.length <= 6) T(fmtMeseBreve(d.k), xp(i), gy + gh + 4, "courier", "normal", 5.5, PDFC.meta, {align:"center"});
   });
   y = cy + chh + 10;
@@ -769,32 +930,40 @@ function vistaAccesso(){
 }
 
 function render(){
+  const lettura = LETTURA.includes(V.tab);
   if (S.mode === "login" || S.mode === "negato"){
     document.querySelector(".nav").hidden = true;
-    $("#stato-dati").innerHTML = ""; $("#azione-testata").innerHTML = "";
-    $("#vista").innerHTML = vistaAccesso();
+    $("#filtri").innerHTML = ""; $("#stato-dati").innerHTML = ""; $("#azione-testata").innerHTML = "";
+    $("#pag-sopra").textContent = "Report Finanziamenti"; $("#pag-titolo").textContent = "Report Finanziamenti";
+    $("#pag-dek").textContent = "Contratti, immatricolazioni e finanziamenti per marchio, mese dopo mese.";
+    $("#vista").className = "lettura"; $("#vista").innerHTML = vistaAccesso();
     return;
   }
   document.querySelector(".nav").hidden = false;
-  $("#tab-cruscotto").setAttribute("aria-pressed", V.tab === "cruscotto");
-  $("#tab-inserisci").setAttribute("aria-pressed", V.tab === "inserisci");
   $("#tab-inserisci").hidden = S.mode === "statico" || (S.mode === "db" && !S.owner);
-  if (S.mode === "statico" && V.tab === "inserisci") V.tab = "cruscotto";
+  if (S.mode === "statico" && V.tab === "inserisci") return (V.tab = "panoramica", render());
+  document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-pressed", b.getAttribute("data-tab") === V.tab));
   const ks = chiavi();
+  const cur = lettura && ks.length ? periodoCorrente() : null;
+  /* ogni pagina ha il suo titolo; sopra, il perimetro e il periodo scelti */
+  $("#pag-sopra").textContent = cur ? `${cur.per.t === "Gruppo" ? "Tutto il gruppo" : cur.per.t} · ${cap(cur.P.label)}` : (lettura ? "Report Finanziamenti" : "Inserimento");
+  $("#pag-titolo").textContent = PAGINE[V.tab].t; $("#pag-dek").textContent = PAGINE[V.tab].d;
   $("#stato-dati").innerHTML = (ks.length ? `Ultimo mese: <b>${esc(fmtMese(ks[ks.length-1]))}</b>${S.docs[ks[ks.length-1]].parziale ? " · in corso" : ""}${S.mode === "statico" && S.generato ? ` · copia del ${esc(S.generato)}` : ""}` : "")
     + (S.sb && S.email ? ` · ${esc(S.email)} · <button class="t" id="esci" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">Esci</button>` : "");
-  $("#azione-testata").innerHTML = V.tab === "cruscotto" && ks.length && S.downloads !== null ? `<button class="btn primary t" id="scarica-pdf" ${V.pdfInCorso ? "disabled" : ""}>${V.pdfInCorso ? "Preparazione…" : "Scarica report PDF"}</button>` : "";
-  $("#vista").innerHTML = V.tab === "cruscotto" ? vistaCruscotto() : vistaInserisci();
-  if (V.tab === "cruscotto") disegnaGrafici();
+  $("#filtri").innerHTML = filtriBar();
+  $("#azione-testata").innerHTML = lettura && ks.length && S.downloads !== null ? `<button class="g-pdf t" id="scarica-pdf" ${V.pdfInCorso ? "disabled" : ""}><svg class="g-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>${V.pdfInCorso ? "Preparazione…" : "Report PDF"}</button>` : "";
+  $("#vista").className = lettura ? "lettura" : "lavoro";
+  $("#vista").innerHTML = lettura ? vistaLettura() : vistaInserisci();
+  if (V.tab === "panoramica") disegnaGrafici();
 }
 
 /* ---------- eventi ---------- */
 document.addEventListener("click", async e=>{
   const t = e.target.closest ? (e.target.closest("button, tr[data-perimetro]") || e.target) : e.target;
-  if (t.id === "tab-cruscotto"){ V.tab = "cruscotto"; render(); return; }
-  if (t.id === "tab-inserisci" || t.id === "vai-inserisci"){ V.tab = "inserisci"; render(); return; }
+  const tb = e.target.closest && e.target.closest("[data-tab]"); if (tb){ V.tab = tb.getAttribute("data-tab"); render(); return; }
+  if (t.id === "vai-inserisci"){ V.tab = "inserisci"; render(); return; }
   const g = e.target.closest && e.target.closest("[data-gran]"); if (g){ V.gran = g.getAttribute("data-gran"); V.periodo = null; render(); return; }
-  const pr = e.target.closest && e.target.closest("[data-perimetro]"); if (pr){ V.perimetro = pr.getAttribute("data-perimetro"); render(); return; }
+  const pr = e.target.closest && e.target.closest("[data-perimetro]"); if (pr){ scegliPerimetro(pr.getAttribute("data-perimetro")); return; }
   const em = e.target.closest && e.target.closest("[data-emarchio]"); if (em){ E.marchio = em.getAttribute("data-emarchio"); render(); return; }
   if (t.id === "aggiungi-modello"){
     const nome = ($("#nuovo-modello").value || "").trim().toUpperCase().replace(/[.]/g, "");
@@ -813,7 +982,9 @@ document.addEventListener("click", async e=>{
     E.conferma = false; render(); return;
   }
 });
-document.addEventListener("keydown", e=>{ if (e.key === "Enter"){ const pr = e.target.closest && e.target.closest("tr[data-perimetro]"); if (pr){ V.perimetro = pr.getAttribute("data-perimetro"); render(); } } });
+/* scegliere un solo marchio dalla pagina Marchi porta alla Panoramica di quel marchio */
+function scegliPerimetro(k){ V.perimetro = k; if (V.tab === "marchi" && PERIMETRI.find(x=>x.k===k).m.length === 1) V.tab = "panoramica"; render(); }
+document.addEventListener("keydown", e=>{ if (e.key === "Enter"){ const pr = e.target.closest && e.target.closest("tr[data-perimetro]"); if (pr) scegliPerimetro(pr.getAttribute("data-perimetro")); } });
 document.addEventListener("change", e=>{
   const t = e.target;
   if (t.id === "sel-periodo"){ V.periodo = t.value; render(); return; }

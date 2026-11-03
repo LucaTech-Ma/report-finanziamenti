@@ -7,6 +7,9 @@ La versione del Report Finanziamenti da aprire fuori da claude.ai, con un link. 
 - `sql/01_schema.sql` – tabelle e regole di accesso: chi non è collegato non vede niente, chi è in `accessi` come `lettore` legge, come `editore` legge e scrive.
 - `dati-locali/` – **esclusa da git**: lo storico con i dati reali (`02_storico.sql`) e l'elenco delle email autorizzate (`03_accessi.sql`). Non va mai pubblicata.
 
+## Stato
+- **3/11/2026:** `index.html` rigenerato con il nuovo design del report (guscio alla Google, pagine a colori). `costruisci.py` ora riconosce il contenitore `<div class="wrap g-app">`. Pubblicato su GitHub Pages il 3/11 con il via di Luca, dopo i controlli: nessun dato nella pagina e, senza accesso, Supabase nega la lettura di `mesi` e `accessi` (HTTP 401).
+
 ## Regole
 - I numeri non entrano mai nel repository: né nella pagina né nella storia dei commit.
 - Prima di pubblicare, chiedere conferma a Luca e verificare che senza accesso il database non restituisca niente.
