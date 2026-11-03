@@ -264,6 +264,22 @@ body{background:var(--deep)}
 .toast .kicker{color:#9FD3B6}
 .toast span{color:#E7E5E4}
 .toast.err .kicker{color:#F3C77A}
+/* Novità del 3/11, validate da Luca: confronto con l'anno prima, da inizio anno, mix delle finanziarie, loyalty */
+.kpi-d + .kpi-d{border-top:0;padding-top:2px;margin-top:0}
+.hero .panel-h{align-items:flex-end}
+.hero-num{display:grid;justify-items:end;text-align:right;gap:2px}
+.hero-num b{font-family:var(--serif);font-size:clamp(2.4rem,5vw,3.4rem);font-weight:700;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.hero-num b.su{color:var(--verde)}
+.hero-num b.giu{color:var(--ink);text-decoration:underline;text-decoration-color:var(--amber);text-decoration-thickness:3px;text-underline-offset:6px}
+.hero-num span{font-size:12.5px;color:var(--ink-2)}
+.ytd{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:16px 22px 0;border-top:1px solid var(--s200);border-bottom:1px solid var(--s200)}
+.ytd > div{padding:10px 14px;border-left:1px solid var(--s200);display:grid;gap:2px;min-width:0}
+.ytd > div:first-child{border-left:0;padding-left:0}
+.ytd .l{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--meta)}
+.ytd .v{font-family:var(--serif);font-size:1.6rem;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.ytd .d{font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+.legend .val{font-family:var(--mono);color:var(--ink);font-weight:500;margin-left:2px;letter-spacing:0}
+@media (max-width:600px){ .ytd{grid-template-columns:minmax(0,1fr)} .ytd > div{border-left:0;padding-left:0;border-top:1px solid var(--s200)} .ytd > div:first-child{border-top:0} .hero-num{justify-items:start;text-align:left} }
 /* Crea il report (pagina di lavoro): testi, sezioni, punti in evidenza */
 .form-grid.crea{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
 .form-grid.crea > :nth-child(3){grid-column:1 / -1}
@@ -373,7 +389,7 @@ const MESI_IT = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio
 
 /* ---------- nuovo design (3/11/2026): colori e pagine ---------- */
 const COL = {cobalto:"#1F4FC4", zafferano:"#E8B024", prugna:"#8E3B73", verde:"#0B5D3B", corallo:"#E46A6A", azzurro:"#2E9CC4"};
-// Colore di ogni marchio: il più vicino al colore del marchio fra i sei validati (proposta del 3/11, da validare).
+// Colore di ogni marchio: il più vicino al colore del marchio fra i sei della palette (validato da Luca il 3/11).
 // Il secondo valore dice se sopra il colore si scrive in bianco.
 const COL_MARCHIO = {opel:[COL.zafferano,false], peugeot:[COL.cobalto,true], citroen:[COL.corallo,false], suzuki:[COL.azzurro,false], mazda:[COL.prugna,true], leapmotor:[COL.verde,true]};
 const PAGINE = {
@@ -535,17 +551,32 @@ function vistaLettura(){
   const nota = P.cmpOk ? "" : `<p class="note-band">Nessun confronto: manca il periodo precedente.</p>`;
   if (V.tab === "marchi") return paginaMarchi(P, per, a, c, lab, nota);
   if (V.tab === "credito") return paginaCredito(P, per, a, c, lab, nota);
+  /* confronto anche con lo stesso periodo dell'anno prima, per mese e trimestre (validato il 3/11) */
+  const y12 = P.keys.map(k=>shift(k, -12)), yOk = (V.gran === "mese" || V.gran === "trimestre") && y12.every(k=>S.docs[k]);
+  const ya = yOk ? aggrega(y12, per.m) : null, labY = V.gran === "mese" ? fmtMeseBreve(y12[0]) : `stesso trim. ${kParts(y12[0])[0]}`;
+  const d2 = (cur, prev, punti, parz) => yOk ? delta(cur, prev, punti, labY, parz) : "";
   const kpi = `<div class="kpis">
-      ${kpiCell("Contratti", fmt(a.v_t), `${fmt(a.v_n)} nuovo · ${fmt(a.v_k)} km 0`, delta(a.v_t, c && c.v_t, false, lab, a.parziale))}
-      ${kpiCell("Immatricolazioni", fmt(a.i_t), `${fmt(a.i_n)} nuovo · ${fmt(a.i_k)} km 0 / demo`, delta(a.i_t, c && c.i_t, false, lab, a.parziale))}
-      ${kpiCell("Finanziamenti", fmt(a.fin_t), `${fmt(a.fin_n)} nuovo · ${fmt(a.fin_k)} km 0`, delta(a.fin_t, c && c.fin_t, false, lab, a.parziale))}
-      ${kpiCell("Penetrazione", fmtP(a.pen), "finanziamenti su contratti", delta(a.pen, c && c.pen, true, lab))}
+      ${kpiCell("Contratti", fmt(a.v_t), `${fmt(a.v_n)} nuovo · ${fmt(a.v_k)} km 0`, delta(a.v_t, c && c.v_t, false, lab, a.parziale) + d2(a.v_t, ya && ya.v_t, false, a.parziale))}
+      ${kpiCell("Immatricolazioni", fmt(a.i_t), `${fmt(a.i_n)} nuovo · ${fmt(a.i_k)} km 0 / demo`, delta(a.i_t, c && c.i_t, false, lab, a.parziale) + d2(a.i_t, ya && ya.i_t, false, a.parziale))}
+      ${kpiCell("Finanziamenti", fmt(a.fin_t), `${fmt(a.fin_n)} nuovo · ${fmt(a.fin_k)} km 0`, delta(a.fin_t, c && c.fin_t, false, lab, a.parziale) + d2(a.fin_t, ya && ya.fin_t, false, a.parziale))}
+      ${kpiCell("Penetrazione", fmtP(a.pen), "finanziamenti su contratti", delta(a.pen, c && c.pen, true, lab) + d2(a.pen, ya && ya.pen, true, false))}
     </div>${nota}`;
+  /* da inizio anno: il numero in grande e il grafico progressivo */
+  const ytd = daInizioAnno(P, per), varP = (x0, x1) => x1 ? (x0 - x1) / x1 * 100 : null;
+  const dC = ytd.b ? varP(ytd.a.v_t, ytd.b.v_t) : null, dF = ytd.b ? varP(ytd.a.fin_t, ytd.b.fin_t) : null, dP = ytd.b && ytd.a.pen != null && ytd.b.pen != null ? ytd.a.pen - ytd.b.pen : null;
+  const segno = (d, punti) => d == null ? "n.d." : `${d > 0.05 ? "+" : d < -0.05 ? "−" : ""}${fmtDec(Math.abs(d), 1)}${punti ? " pt" : "%"}`;
+  const hero = `<div class="panel hl hero"><div class="panel-h"><div><p class="kicker">Da inizio anno</p><h3>Contratti da gennaio a ${esc(MESI_IT[ytd.Mf - 1])}, ${ytd.Y} contro ${ytd.Y - 1}</h3><p class="sub">${ytd.parziale ? "Include il mese in corso, ancora parziale" : "Mese per mese, i contratti si sommano"}</p></div>
+      <div class="hero-num"><b class="${dC == null ? "" : dC >= 0 ? "su" : "giu"}">${segno(dC)}</b><span>${ytd.b ? `contratti rispetto al ${ytd.Y - 1}` : `manca il ${ytd.Y - 1} per confrontare`}</span></div></div>
+    <div class="ytd">
+      <div><span class="l">Contratti ${ytd.Y}</span><span class="v">${fmt(ytd.a.v_t)}</span><span class="d">${ytd.b ? `${fmt(ytd.b.v_t)} nel ${ytd.Y - 1} · ${segno(dC)}` : "senza confronto"}</span></div>
+      <div><span class="l">Finanziamenti ${ytd.Y}</span><span class="v">${fmt(ytd.a.fin_t)}</span><span class="d">${ytd.b ? `${fmt(ytd.b.fin_t)} nel ${ytd.Y - 1} · ${segno(dF)}` : "senza confronto"}</span></div>
+      <div><span class="l">Penetrazione ${ytd.Y}</span><span class="v">${fmtP(ytd.a.pen)}</span><span class="d">${ytd.b ? `${fmtP(ytd.b.pen)} nel ${ytd.Y - 1} · ${segno(dP, true)}` : "senza confronto"}</span></div>
+    </div>
+    <div class="panel-b"><div class="chart" id="ch-progressivo"></div><div class="legend" style="margin-top:10px"><span><i style="background:var(--cobalto)"></i>${ytd.Y}</span><span><i class="line" style="background:#78716C"></i>${ytd.Y - 1}</span></div></div></div>`;
   const grafici = `<div class="charts">
       <div class="panel"><div class="panel-h"><div><p class="kicker">Andamento</p><h3>Contratti per mese</h3><p class="sub">Ultimi 24 mesi, in pieno il periodo scelto</p></div><div class="legend"><span><i style="background:var(--cobalto)"></i>Nuovo</span><span><i style="background:var(--zafferano)"></i>Km 0</span></div></div><div class="panel-b"><div class="chart" id="ch-contratti"></div><div class="tip" hidden></div></div></div>
-      <div class="panel"><div class="panel-h"><div><p class="kicker">Andamento</p><h3>Penetrazione finanziamenti</h3><p class="sub">Finanziamenti su contratti, mese per mese</p></div></div><div class="panel-b"><div class="chart" id="ch-pen"></div><div class="tip" hidden></div></div></div>
-    </div>`;
-  return kpi + grafici;
+      <div class="panel"><div class="panel-h"><div><p class="kicker">Andamento</p><h3>Penetrazione finanziamenti</h3><p class="sub">Finanziamenti su contratti, mese per mese: il totale e, separati, nuovo e km 0</p></div><div class="legend"><span><i class="line" style="background:var(--prugna);height:3px"></i>Totale</span><span><i class="line" style="background:var(--cobalto)"></i>Nuovo</span><span><i class="line" style="background:var(--zafferano)"></i>Km 0</span></div></div><div class="panel-b"><div class="chart" id="ch-pen"></div><div class="tip" hidden></div></div></div>    </div>`;
+  return kpi + grafici + hero;  /* "Da inizio anno" in fondo alla pagina (Luca, 3/11) */
 }
 
 function paginaMarchi(P, per, a, c, lab, nota){
@@ -574,7 +605,12 @@ function paginaCredito(P, per, a, c, lab, nota){
       ${kpiCell("Agos", fmt(a.ag_t), `${fmtP(pct(a.ag_t, a.fin_t))} dei finanziamenti`, delta(pct(a.ag_t, a.fin_t), c && pct(c.ag_t, c.fin_t), true, lab))}
       ${kpiCell("Loyalty", fmt(a.loy), `${fmtP(pct(a.loy, a.v_t))} dei contratti`, delta(pct(a.loy, a.v_t), c && pct(c.loy, c.v_t), true, lab))}
     </div>${nota}`;
-  return kpi + dettaglio(a, per);
+  const mix = catMix(per, P.keys);
+  const pannelli = `<div class="charts">
+      <div class="panel"><div class="panel-h"><div><p class="kicker">Mix delle finanziarie</p><h3>Chi finanzia, mese per mese</h3><p class="sub">Quota di ogni finanziaria sui finanziamenti, ultimi 24 mesi; in pieno il periodo scelto, con la sua quota accanto al nome</p></div><div class="legend">${mix.map(m=>`<span><i style="background:${m.col}"></i>${esc(m.t)} <b class="val">${fmtP(m.q)}</b></span>`).join("")}</div></div><div class="panel-b"><div class="chart" id="ch-mix"></div></div></div>
+      <div class="panel"><div class="panel-h"><div><p class="kicker">Clienti</p><h3>Loyalty per modello</h3><p class="sub">Contratti con clienti che tornano, i primi 10 modelli del periodo, nel colore del marchio</p></div></div><div class="panel-b"><div class="chart" id="ch-loyalty"></div></div></div>
+    </div>`;
+  return kpi + pannelli + dettaglio(a, per);
 }
 
 function tabellaMarchi(P, per){
@@ -617,7 +653,7 @@ function dettaglio(a, per){
 }
 
 /* ---------- grafici ---------- */
-function serie(per){ return chiavi().slice(-24).map(k=>{ const a = aggrega([k], per.m); return {k, n:a.v_n, km:a.v_k, pen:a.pen, fin:a.fin_t, parz:!!S.docs[k].parziale}; }); }
+function serie(per){ return chiavi().slice(-24).map(k=>{ const a = aggrega([k], per.m); return {k, n:a.v_n, km:a.v_k, it:a.i_t, pen:a.pen, penN:a.pen_n, penK:a.pen_k, fin:a.fin_t, parz:!!S.docs[k].parziale}; }); }
 function scala(max){ const passi = [1,2,2.5,5,10]; const exp = Math.pow(10, Math.floor(Math.log10(Math.max(max,1)))); for (const p of passi){ const s = p*exp; if (s*4 >= max) return {step:s, max:s*4}; } return {step:exp*10, max:exp*40}; }
 const AX = `font-family="JetBrains Mono, monospace" font-size="11.5" fill="#78716C"`;
 /* dal 3/11 i grafici stanno uno sotto l'altro e si disegnano sulla larghezza reale: testo leggibile su ogni schermo */
@@ -644,12 +680,17 @@ function graficoContratti(dati, sel, Wpx){
 }
 function graficoPen(dati, sel, Wpx){
   const W = Math.max(300, Math.round(Wpx || 520)), H = W < 600 ? 230 : 270, L = 48, R = 10, T = 16, B = 28, w = W-L-R, h = H-T-B;
-  const vals = dati.map(d=>d.pen).filter(v=>v != null);
+  const vals = dati.flatMap(d=>[d.pen, d.penN, d.penK]).filter(v=>v != null);
   const sc = scala(Math.max(...vals, 10));
   const x = i => L + (dati.length === 1 ? w/2 : w * i / (dati.length-1));
   const y = v => T + h - h * v / sc.max;
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Penetrazione dei finanziamenti per mese">`;
   for (let i=0;i<=4;i++){ const yy = T + h - h*i/4; s += `<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="${i ? "#E7E5E4" : "#141413"}" stroke-width="1"/><text x="${L-8}" y="${yy+4}" text-anchor="end" ${AX}>${fmtNum(sc.step*i)}%</text>`; }
+  /* nuovo e km 0 come linee sottili, il totale sopra (validato il 3/11) */
+  const lineaDi = campo => { let d = ""; dati.forEach((dd, i)=>{ if (dd[campo] == null) return; d += (d ? " L" : "M") + `${x(i).toFixed(1)},${y(dd[campo]).toFixed(1)}`; }); return d; };
+  const dN = lineaDi("penN"), dK = lineaDi("penK");
+  if (dN) s += `<path d="${dN}" fill="none" stroke="${COL.cobalto}" stroke-width="1.8" stroke-linejoin="round"/>`;
+  if (dK) s += `<path d="${dK}" fill="none" stroke="${COL.zafferano}" stroke-width="1.8" stroke-dasharray="6 4" stroke-linejoin="round"/>`;
   let path = "", primoX = null, ultimoX = null;
   dati.forEach((d, i)=>{ if (d.pen == null) return; path += (path ? " L" : "M") + `${x(i).toFixed(1)},${y(d.pen).toFixed(1)}`; if (primoX == null) primoX = x(i); ultimoX = x(i); });
   if (path) s += `<path d="${path} L${ultimoX.toFixed(1)},${(T + h).toFixed(1)} L${primoX.toFixed(1)},${(T + h).toFixed(1)} Z" fill="${COL.prugna}" fill-opacity=".12"/><path d="${path}" fill="none" stroke="${COL.prugna}" stroke-width="2.5" stroke-linejoin="round"/>`;
@@ -661,13 +702,89 @@ function graficoPen(dati, sel, Wpx){
   });
   return s + `</svg>`;
 }
+/* ---------- novità del 3/11/2026, validate da Luca una per una ---------- */
+const MESI_BREVI = MESI_IT.map(m=>m.slice(0, 3));
+const CAT_MIX = [
+  {id:"sfs", t:"SFS", col:COL.verde, v:a=>a.fin.sfs || 0},
+  {id:"agos", t:"Agos", col:COL.zafferano, v:a=>(a.fin.agos_nuovo || 0) + (a.fin.agos_km0 || 0)},
+  {id:"ca", t:"CA + Leasys", col:COL.azzurro, v:a=>a.fin.ca_leasys || 0},
+  {id:"marchio", t:"Finanziaria del marchio", col:COL.prugna, v:a=>(a.fin.marchio_nuovo || 0) + (a.fin.marchio_km0 || 0)}
+];
+function catMix(per, keys){ const a = aggrega(keys, per.m); return CAT_MIX.filter(m=>m.v(a) > 0).map(m=>Object.assign({}, m, {n:m.v(a), q:pct(m.v(a), a.fin_t)})); }
+function daInizioAnno(P, per){
+  const fine = P.keys[P.keys.length - 1], [Y, Mf] = kParts(fine), kOra = [], kPrima = [];
+  for (let m = 1; m <= Mf; m++){ kOra.push(mk(Y, m)); kPrima.push(mk(Y - 1, m)); }
+  const okPrima = kPrima.every(k=>S.docs[k]);
+  return {Y, Mf, a:aggrega(kOra.filter(k=>S.docs[k]), per.m), b:okPrima ? aggrega(kPrima, per.m) : null, parziale:!!(S.docs[fine] && S.docs[fine].parziale)};
+}
+function asseY(s, L, R, T, h, W, sc, suff){ for (let i=0;i<=4;i++){ const y = T + h - h*i/4; s.push(`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="${i ? "#E7E5E4" : "#141413"}" stroke-width="1"/><text x="${L-8}" y="${y+4}" text-anchor="end" ${AX}>${fmtNum(sc.step*i)}${suff || ""}</text>`); } }
+function graficoProgressivo(P, per, Wpx){
+  const W = Math.max(300, Math.round(Wpx || 640)), H = W < 600 ? 260 : 320, L = 54, R = W < 600 ? 14 : 24, T = 18, B = 28, w = W-L-R, h = H-T-B;
+  const fine = P.keys[P.keys.length - 1], [Y, Mf] = kParts(fine);
+  const cum = (anno, finoA) => { let t = 0; const out = []; for (let m = 1; m <= 12; m++){ const k = mk(anno, m); if (m > finoA || !S.docs[k]){ out.push(null); continue; } t += aggrega([k], per.m).v_t; out.push(t); } return out; };
+  const ora = cum(Y, Mf), prima = cum(Y - 1, 12);
+  const sc = scala(Math.max(1, ...ora.concat(prima).filter(v=>v != null)));
+  const x = i => L + w*i/11, y = v => T + h - h*v/sc.max;
+  const linea = arr => { let d = ""; arr.forEach((v, i)=>{ if (v == null) return; d += (d ? " L" : "M") + `${x(i).toFixed(1)},${y(v).toFixed(1)}`; }); return d; };
+  const s = [`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Contratti progressivi da inizio anno, ${Y} e ${Y - 1}">`];
+  asseY(s, L, R, T, h, W, sc);
+  const dPrima = linea(prima), dOra = linea(ora), idx = ora.map((v, i)=>v == null ? -1 : i).filter(i=>i >= 0);
+  if (dPrima) s.push(`<path d="${dPrima}" fill="none" stroke="#78716C" stroke-width="2" stroke-dasharray="6 5"/>`);
+  if (dOra && idx.length){
+    const i0 = idx[0], i1 = idx[idx.length - 1];
+    s.push(`<path d="${dOra} L${x(i1).toFixed(1)},${(T + h).toFixed(1)} L${x(i0).toFixed(1)},${(T + h).toFixed(1)} Z" fill="${COL.cobalto}" fill-opacity=".12"/><path d="${dOra}" fill="none" stroke="${COL.cobalto}" stroke-width="3" stroke-linejoin="round"/>`);
+    s.push(`<line x1="${x(i1).toFixed(1)}" x2="${x(i1).toFixed(1)}" y1="${T}" y2="${T + h}" stroke="#141413" stroke-width="1" stroke-dasharray="2 3"/>`);
+    if (prima[i1] != null) s.push(`<circle cx="${x(i1).toFixed(1)}" cy="${y(prima[i1]).toFixed(1)}" r="5" fill="#FFFFFF" stroke="#78716C" stroke-width="2"><title>${Y - 1}, fino a ${MESI_IT[i1]}: ${fmt(prima[i1])} contratti</title></circle>`);
+    s.push(`<circle cx="${x(i1).toFixed(1)}" cy="${y(ora[i1]).toFixed(1)}" r="6.5" fill="${COL.cobalto}" stroke="#FFFFFF" stroke-width="2"><title>${Y}, fino a ${MESI_IT[i1]}: ${fmt(ora[i1])} contratti</title></circle>`);
+  }
+  const ogni = W < 520 ? 2 : 1;
+  MESI_BREVI.forEach((m, i)=>{ if (i % ogni === 0) s.push(`<text x="${x(i).toFixed(1)}" y="${H - 6}" text-anchor="middle" ${AX}>${m}</text>`); });
+  s.push(`</svg>`); return s.join("");
+}
+function graficoMix(per, sel, Wpx){
+  const W = Math.max(300, Math.round(Wpx || 640)), H = W < 600 ? 240 : 280, L = 46, R = 6, T = 12, B = 28, w = W-L-R, h = H-T-B;
+  const mesi = chiavi().slice(-24).map(k=>({k, a:aggrega([k], per.m)}));
+  const cats = CAT_MIX.filter(m=>mesi.some(x0=>m.v(x0.a) > 0));
+  const bw = w / Math.max(1, mesi.length), gap = Math.min(6, bw*0.3);
+  const s = [`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Quota di ogni finanziaria sui finanziamenti, mese per mese">`];
+  for (let i=0;i<=4;i++){ const yy = T + h - h*i/4; s.push(`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="${i ? "#E7E5E4" : "#141413"}" stroke-width="1"/><text x="${L-8}" y="${yy+4}" text-anchor="end" ${AX}>${i*25}%</text>`); }
+  mesi.forEach((x0, i)=>{
+    const tot = cats.reduce((t, m)=>t + m.v(x0.a), 0), on = sel.has(x0.k), xx = L + i*bw + gap/2, bwi = Math.max(2, bw - gap);
+    let base = T + h;
+    if (tot > 0) cats.forEach(m=>{ const v = m.v(x0.a); if (!v) return; const hh = h * v / tot; s.push(`<rect x="${xx.toFixed(1)}" y="${(base - hh + 1).toFixed(1)}" width="${bwi.toFixed(1)}" height="${Math.max(0.5, hh - 1).toFixed(1)}" fill="${m.col}" opacity="${on ? 1 : .5}"><title>${cap(fmtMese(x0.k))} · ${m.t}: ${fmtP(pct(v, tot))} (${fmt(v)} finanziamenti)</title></rect>`); base -= hh; });
+    if (i % ogniMesi(W) === (mesi.length - 1) % ogniMesi(W)) s.push(`<text x="${(xx + bwi/2).toFixed(1)}" y="${H - 6}" text-anchor="middle" ${AX}>${fmtMeseBreve(x0.k)}</text>`);
+  });
+  s.push(`</svg>`); return s.join("");
+}
+function graficoLoyalty(a, Wpx){
+  const voci = Object.entries(a.modelli).filter(([, v])=>v > 0).sort((p, q)=>q[1] - p[1]).slice(0, 10);
+  if (!voci.length) return `<p class="sub" style="margin:0">Nessuna loyalty per modello nel periodo scelto.</p>`;
+  const W = Math.max(300, Math.round(Wpx || 640)), Lb = W < 520 ? 96 : 140, R = 56, rh = 32, H = voci.length*rh + 8, w = W - Lb - R, max = voci[0][1];
+  const marchioDi = mo => MARCHI.find(M=>M.modelli.includes(mo));
+  const s = [`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Loyalty per modello">`];
+  voci.forEach(([mo, v], i)=>{
+    const M = marchioDi(mo), col = M ? COL_MARCHIO[M.k][0] : "#57534E", yy = 4 + i*rh, bwi = Math.max(2, w * v / max), nome = esc(cap(mo.toLowerCase()));
+    s.push(`<text x="${Lb - 10}" y="${yy + rh/2 + 4}" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif" font-size="13" font-weight="600" fill="#141413">${nome}</text>`);
+    s.push(`<rect x="${Lb}" y="${yy + 6}" width="${bwi.toFixed(1)}" height="${rh - 12}" fill="${col}"><title>${nome}${M ? ` (${M.t})` : ""}: ${fmt(v)}</title></rect>`);
+    s.push(`<text x="${(Lb + bwi + 8).toFixed(1)}" y="${yy + rh/2 + 4}" font-family="JetBrains Mono, monospace" font-size="12" fill="#141413">${fmt(v)}</text>`);
+  });
+  s.push(`</svg>`); return s.join("");
+}
+function disegnaExtra(){
+  const cur = periodoCorrente(); if (!cur) return;
+  const {P, per} = cur, sel = new Set(P.keys);
+  const box = (id, f) => { const el = $("#" + id); if (el) el.innerHTML = f(el.clientWidth); };
+  box("ch-progressivo", W=>graficoProgressivo(P, per, W));
+  box("ch-mix", W=>graficoMix(per, sel, W));
+  box("ch-loyalty", W=>graficoLoyalty(aggrega(P.keys, per.m), W));
+}
 function disegnaGrafici(){
   const c1 = $("#ch-contratti"), c2 = $("#ch-pen"); if (!c1 || !c2) return;
   const cur = periodoCorrente(); if (!cur) return;
   const dati = serie(cur.per), sel = new Set(cur.P.keys);
   c1.innerHTML = graficoContratti(dati, sel, c1.clientWidth); c2.innerHTML = graficoPen(dati, sel, c2.clientWidth);
   const tipC = d => `<div class="k">${esc(fmtMese(d.k))}${d.parz ? " · parziale" : ""}</div><div class="row"><span><span class="sw" style="background:${COL.cobalto}"></span>Nuovo</span><span>${fmt(d.n)}</span></div><div class="row"><span><span class="sw" style="background:${COL.zafferano}"></span>Km 0</span><span>${fmt(d.km)}</span></div><div class="row"><span>Totale</span><span>${fmt(d.n + d.km)}</span></div>`;
-  const tipP = d => `<div class="k">${esc(fmtMese(d.k))}${d.parz ? " · parziale" : ""}</div><div class="row"><span>Penetrazione</span><span>${fmtP(d.pen)}</span></div><div class="row"><span>Finanziamenti</span><span>${fmt(d.fin)}</span></div><div class="row"><span>Contratti</span><span>${fmt(d.n + d.km)}</span></div>`;
+  const tipP = d => `<div class="k">${esc(fmtMese(d.k))}${d.parz ? " · parziale" : ""}</div><div class="row"><span><span class="sw" style="background:${COL.prugna}"></span>Totale</span><span>${fmtP(d.pen)}</span></div><div class="row"><span><span class="sw" style="background:${COL.cobalto}"></span>Nuovo</span><span>${fmtP(d.penN)}</span></div><div class="row"><span><span class="sw" style="background:${COL.zafferano}"></span>Km 0</span><span>${fmtP(d.penK)}</span></div><div class="row"><span>Finanziamenti</span><span>${fmt(d.fin)}</span></div><div class="row"><span>Contratti</span><span>${fmt(d.n + d.km)}</span></div>`;
   [[c1, tipC], [c2, tipP]].forEach(([c, testo])=>{
     const tip = c.parentElement.querySelector(".tip");
     if (!c.addEventListener) return;
@@ -1115,6 +1232,7 @@ function render(){
   $("#vista").className = lettura ? "lettura" : "lavoro";
   $("#vista").innerHTML = lettura ? vistaLettura() : V.tab === "crea" ? vistaCrea() : vistaInserisci();
   if (V.tab === "panoramica") disegnaGrafici();
+  if (V.tab === "panoramica" || V.tab === "credito") disegnaExtra();
 }
 
 /* ---------- eventi ---------- */
@@ -1154,7 +1272,7 @@ document.addEventListener("click", async e=>{
 });
 /* i grafici si ridisegnano quando cambia la larghezza della finestra (non l'altezza: sul telefono cambia scorrendo) */
 let larghezzaVista = window.innerWidth, timerVista = null;
-window.addEventListener("resize", ()=>{ if (window.innerWidth === larghezzaVista) return; larghezzaVista = window.innerWidth; clearTimeout(timerVista); timerVista = setTimeout(()=>{ if (V.tab === "panoramica") render(); }, 200); });
+window.addEventListener("resize", ()=>{ if (window.innerWidth === larghezzaVista) return; larghezzaVista = window.innerWidth; clearTimeout(timerVista); timerVista = setTimeout(()=>{ if (V.tab === "panoramica" || V.tab === "credito") render(); }, 200); });
 /* scegliere un solo marchio dalla pagina Marchi porta alla Panoramica di quel marchio */
 function scegliPerimetro(k){ V.perimetro = k; if (V.tab === "marchi" && PERIMETRI.find(x=>x.k===k).m.length === 1) V.tab = "panoramica"; render(); }
 document.addEventListener("keydown", e=>{ if (e.key === "Enter"){ const pr = e.target.closest && e.target.closest("tr[data-perimetro]"); if (pr) scegliPerimetro(pr.getAttribute("data-perimetro")); } });
