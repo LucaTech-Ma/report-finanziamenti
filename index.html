@@ -264,6 +264,9 @@ body{background:var(--deep)}
 .toast .kicker{color:#9FD3B6}
 .toast span{color:#E7E5E4}
 .toast.err .kicker{color:#F3C77A}
+/* Panoramica: i due grafici uno sotto l'altro, a tutta larghezza */
+.charts{grid-template-columns:minmax(0,1fr)}
+.chart svg{max-width:100%}
 /* in fase di accesso: niente barra né menu, una sola colonna, la scheda al centro dello schermo */
 .g-app.login .g-bar{display:none}
 .g-app.login .g-body{grid-template-columns:minmax(0,1fr);min-height:100vh;align-items:center}
@@ -585,9 +588,11 @@ function dettaglio(a, per){
 /* ---------- grafici ---------- */
 function serie(per){ return chiavi().slice(-24).map(k=>{ const a = aggrega([k], per.m); return {k, n:a.v_n, km:a.v_k, pen:a.pen, fin:a.fin_t, parz:!!S.docs[k].parziale}; }); }
 function scala(max){ const passi = [1,2,2.5,5,10]; const exp = Math.pow(10, Math.floor(Math.log10(Math.max(max,1)))); for (const p of passi){ const s = p*exp; if (s*4 >= max) return {step:s, max:s*4}; } return {step:exp*10, max:exp*40}; }
-const AX = `font-family="JetBrains Mono, monospace" font-size="10.5" fill="#78716C"`;
-function graficoContratti(dati, sel){
-  const W = 640, H = 240, L = 42, R = 4, T = 12, B = 26, w = W-L-R, h = H-T-B;
+const AX = `font-family="JetBrains Mono, monospace" font-size="11.5" fill="#78716C"`;
+/* dal 3/11 i grafici stanno uno sotto l'altro e si disegnano sulla larghezza reale: testo leggibile su ogni schermo */
+const ogniMesi = W => W < 520 ? 6 : W < 820 ? 3 : 2;
+function graficoContratti(dati, sel, Wpx){
+  const W = Math.max(300, Math.round(Wpx || 640)), H = W < 600 ? 250 : 300, L = 44, R = 6, T = 14, B = 28, w = W-L-R, h = H-T-B;
   const sc = scala(Math.max(...dati.map(d=>d.n + d.km), 1));
   const bw = w / dati.length, gap = Math.min(6, bw*0.3);
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Contratti per mese, nuovo e km 0">`;
@@ -601,13 +606,13 @@ function graficoContratti(dati, sel){
     if (hk > 0) s += `<rect x="${x}" y="${yK}" width="${bwi}" height="${hk}" fill="${COL.zafferano}"/>`;
     if (d.parz) s += `<text x="${x+bwi/2}" y="${yK-5}" text-anchor="middle" ${AX}>parz.</text>`;
     s += `</g>`;
-    if (i % 3 === (dati.length-1) % 3) s += `<text x="${x+bwi/2}" y="${H-6}" text-anchor="middle" ${AX}>${fmtMeseBreve(d.k)}</text>`;
+    if (i % ogniMesi(W) === (dati.length-1) % ogniMesi(W)) s += `<text x="${x+bwi/2}" y="${H-6}" text-anchor="middle" ${AX}>${fmtMeseBreve(d.k)}</text>`;
     s += `<rect class="hit" data-i="${i}" x="${L + i*bw}" y="${T}" width="${bw}" height="${h}" fill="transparent"/>`;
   });
   return s + `</svg>`;
 }
-function graficoPen(dati, sel){
-  const W = 520, H = 240, L = 46, R = 8, T = 14, B = 26, w = W-L-R, h = H-T-B;
+function graficoPen(dati, sel, Wpx){
+  const W = Math.max(300, Math.round(Wpx || 520)), H = W < 600 ? 230 : 270, L = 48, R = 10, T = 16, B = 28, w = W-L-R, h = H-T-B;
   const vals = dati.map(d=>d.pen).filter(v=>v != null);
   const sc = scala(Math.max(...vals, 10));
   const x = i => L + (dati.length === 1 ? w/2 : w * i / (dati.length-1));
@@ -619,7 +624,7 @@ function graficoPen(dati, sel){
   if (path) s += `<path d="${path} L${ultimoX.toFixed(1)},${(T + h).toFixed(1)} L${primoX.toFixed(1)},${(T + h).toFixed(1)} Z" fill="${COL.prugna}" fill-opacity=".12"/><path d="${path}" fill="none" stroke="${COL.prugna}" stroke-width="2.5" stroke-linejoin="round"/>`;
   dati.forEach((d, i)=>{
     if (d.pen != null){ const on = sel.has(d.k); s += `<rect x="${(x(i) - (on ? 4 : 3)).toFixed(1)}" y="${(y(d.pen) - (on ? 4 : 3)).toFixed(1)}" width="${on ? 8 : 6}" height="${on ? 8 : 6}" fill="${on ? COL.prugna : "#FFFFFF"}" stroke="${COL.prugna}" stroke-width="1.5"/>`; }
-    if (i % 3 === (dati.length-1) % 3) s += `<text x="${x(i).toFixed(1)}" y="${H-6}" text-anchor="middle" ${AX}>${fmtMeseBreve(d.k)}</text>`;
+    if (i % ogniMesi(W) === (dati.length-1) % ogniMesi(W)) s += `<text x="${x(i).toFixed(1)}" y="${H-6}" text-anchor="middle" ${AX}>${fmtMeseBreve(d.k)}</text>`;
     const bw = dati.length > 1 ? w/(dati.length-1) : w;
     s += `<rect class="hit" data-i="${i}" x="${(x(i)-bw/2).toFixed(1)}" y="${T}" width="${bw.toFixed(1)}" height="${h}" fill="transparent"/>`;
   });
@@ -629,7 +634,7 @@ function disegnaGrafici(){
   const c1 = $("#ch-contratti"), c2 = $("#ch-pen"); if (!c1 || !c2) return;
   const cur = periodoCorrente(); if (!cur) return;
   const dati = serie(cur.per), sel = new Set(cur.P.keys);
-  c1.innerHTML = graficoContratti(dati, sel); c2.innerHTML = graficoPen(dati, sel);
+  c1.innerHTML = graficoContratti(dati, sel, c1.clientWidth); c2.innerHTML = graficoPen(dati, sel, c2.clientWidth);
   const tipC = d => `<div class="k">${esc(fmtMese(d.k))}${d.parz ? " · parziale" : ""}</div><div class="row"><span><span class="sw" style="background:${COL.cobalto}"></span>Nuovo</span><span>${fmt(d.n)}</span></div><div class="row"><span><span class="sw" style="background:${COL.zafferano}"></span>Km 0</span><span>${fmt(d.km)}</span></div><div class="row"><span>Totale</span><span>${fmt(d.n + d.km)}</span></div>`;
   const tipP = d => `<div class="k">${esc(fmtMese(d.k))}${d.parz ? " · parziale" : ""}</div><div class="row"><span>Penetrazione</span><span>${fmtP(d.pen)}</span></div><div class="row"><span>Finanziamenti</span><span>${fmt(d.fin)}</span></div><div class="row"><span>Contratti</span><span>${fmt(d.n + d.km)}</span></div>`;
   [[c1, tipC], [c2, tipP]].forEach(([c, testo])=>{
@@ -1002,6 +1007,9 @@ document.addEventListener("click", async e=>{
     E.conferma = false; render(); return;
   }
 });
+/* i grafici si ridisegnano quando cambia la larghezza della finestra (non l'altezza: sul telefono cambia scorrendo) */
+let larghezzaVista = window.innerWidth, timerVista = null;
+window.addEventListener("resize", ()=>{ if (window.innerWidth === larghezzaVista) return; larghezzaVista = window.innerWidth; clearTimeout(timerVista); timerVista = setTimeout(()=>{ if (V.tab === "panoramica") render(); }, 200); });
 /* scegliere un solo marchio dalla pagina Marchi porta alla Panoramica di quel marchio */
 function scegliPerimetro(k){ V.perimetro = k; if (V.tab === "marchi" && PERIMETRI.find(x=>x.k===k).m.length === 1) V.tab = "panoramica"; render(); }
 document.addEventListener("keydown", e=>{ if (e.key === "Enter"){ const pr = e.target.closest && e.target.closest("tr[data-perimetro]"); if (pr) scegliPerimetro(pr.getAttribute("data-perimetro")); } });
