@@ -660,7 +660,9 @@ const AX = `font-family="JetBrains Mono, monospace" font-size="11.5" fill="#7871
 const ogniMesi = W => W < 520 ? 6 : W < 820 ? 3 : 2;
 function graficoContratti(dati, sel, Wpx){
   const W = Math.max(300, Math.round(Wpx || 640)), H = W < 600 ? 250 : 300, L = 44, R = 6, T = 14, B = 28, w = W-L-R, h = H-T-B;
-  const sc = scala(Math.max(...dati.map(d=>d.n + d.km), 1));
+  /* asse fisso a 6.000 per il gruppo (Luca, 3/11); negli altri perimetri automatico, se no le barre dei marchi piccoli sparirebbero */
+  const maxC = Math.max(...dati.map(d=>d.n + d.km), 1);
+  const sc = V.perimetro === "gruppo" && maxC <= 6000 ? {step:1500, max:6000} : scala(maxC);
   const bw = w / dati.length, gap = Math.min(6, bw*0.3);
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Contratti per mese, nuovo e km 0">`;
   for (let i=0;i<=4;i++){ const y = T + h - h*i/4; s += `<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="${i ? "#E7E5E4" : "#141413"}" stroke-width="1"/><text x="${L-8}" y="${y+4}" text-anchor="end" ${AX}>${fmtNum(sc.step*i)}</text>`; }
