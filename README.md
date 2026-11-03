@@ -10,6 +10,8 @@ La versione del Report Finanziamenti da aprire fuori da claude.ai, con un link. 
 ## Stato
 - **3/11/2026:** `index.html` rigenerato con il nuovo design del report (guscio alla Google, pagine a colori). `costruisci.py` ora riconosce il contenitore `<div class="wrap g-app">`. Pubblicato su GitHub Pages il 3/11 con il via di Luca, dopo i controlli: nessun dato nella pagina e, senza accesso, Supabase nega la lettura di `mesi` e `accessi` (HTTP 401).
 
+- **3/11/2026, prova solo sull'artefatto:** la pagina su claude.ai contiene sei novità visive in prova (confronto con l'anno prima, avvisi "Da guardare" con soglie non validate, grafico da inizio anno, penetrazione nuovo e km 0 separate, portafoglio, mix delle finanziarie e loyalty per modello). **Su GitHub non ci sono:** finché Luca non le valida, non rilanciare `costruisci.py`, altrimenti finiscono anche qui. Versione pubblicata senza le novità: commit `f8aefdc` (senza il pulsante "Report PDF" per l'editore, che crea il PDF dalla pagina "Crea il report"); il suo sorgente è in `4-archivio/2026-11-03_report-finanziamenti-senza-novita.html`.
+
 ## Regole
 - I numeri non entrano mai nel repository: né nella pagina né nella storia dei commit.
 - Prima di pubblicare, chiedere conferma a Luca e verificare che senza accesso il database non restituisca niente.
