@@ -654,7 +654,7 @@ function dettaglio(a, per){
     ["Credito", "Agos", "Sui contratti e sui finanziamenti", righe([["Nuovo", a.ag_n], ["Km 0", a.ag_k]].concat((singolo ? singolo.agosUsato : true) ? [["Usato", a.ag_u]] : []).concat([["Totale", a.ag_t, pct(a.ag_t, vt), "tot"], ["Sui finanziamenti", fmtP(pct(a.ag_t, a.fin_t))]])), false],
     ["Clienti", "Loyalty", "Totale e per modello, sui contratti", righe([["Totale", a.loy, pct(a.loy, vt), "tot"]].concat(modelli.map(([mo, v])=>[cap(mo.toLowerCase()), v]))), false],
     ["Noleggio", "Leasing, rental e rifinanziamenti", "Pratiche nel periodo", righe([["Leasing", a.leasing], ["Rental", a.rental]].concat((singolo ? singolo.rifin : per.m.includes("opel")) ? [["Rifinanziamenti", a.rifin]] : [])), false],
-    ["Amministrazione", "Liquidazioni", "Sulle immatricolazioni del nuovo", righe([["Totale", a.liq, null, "tot"], ["Sulle immatricolazioni nuovo", fmtP(a.liq_p)]]), false]
+    ["Amministrazione", "Liquidazioni", "Sulle immatricolazioni totali e su quelle del nuovo", righe([["Totale", a.liq, null, "tot"], ["Su immatricolato", fmtP(a.liq_pi)], ["Su nuovo", fmtP(a.liq_pv)]]), false]
   ];
   if (usatoLab) blocchi.splice(4, 0, ["Credito", usatoLab, "Pratiche di usato finanziate", righe([["Pratiche", a.usato]]), false]);
   if (per.k === "gruppo") blocchi.push(["Gruppo", "Usato e VFG", "Totale finanziamenti del gruppo", righe([["Usato", a.g_usato], ["VFG", a.g_vfg], ["Totale con usato e VFG", a.fin_t + a.g_usato + a.g_vfg, null, "tot"]]), false]);
@@ -908,7 +908,7 @@ function riepilogo(blocco, b){
   if (blocco.sum === "fin"){ const t = sommaFin(b); return `Totale <b>${fmt(t)}</b>, pari al <b>${fmtP(pct(t, v_t))}</b> dei contratti`; }
   if (blocco.sum === "capt"){ const t = n(get(b,"captive.nuovo")) + n(get(b,"captive.km0")); return `Totale <b>${fmt(t)}</b>: <b>${fmtP(pct(t, v_t))}</b> dei contratti, <b>${fmtP(pct(t, sommaFin(b)))}</b> dei finanziamenti`; }
   if (blocco.sum === "agos"){ const t = n(get(b,"agos.nuovo")) + n(get(b,"agos.km0")) + n(get(b,"agos.usato")); return `Totale <b>${fmt(t)}</b>, pari al <b>${fmtP(pct(t, v_t))}</b> dei contratti`; }
-  if (blocco.sum === "liq") return `<b>${fmtP(pct(n(b.liquidazioni), n(get(b,"immatricolazioni.nuovo"))))}</b> delle immatricolazioni del nuovo`;
+  if (blocco.sum === "liq") return `<b>${fmtP(pct(n(b.liquidazioni), n(get(b,"immatricolazioni.nuovo")) + n(get(b,"immatricolazioni.km0"))))}</b> delle immatricolazioni · <b>${fmtP(pct(n(b.liquidazioni), n(get(b,"immatricolazioni.nuovo"))))}</b> di quelle del nuovo`;
   return "";
 }
 function vistaInserisci(){
@@ -1007,7 +1007,7 @@ function puntiChiave(P, per, a, c){
     const peso = per.m.map(k=>({k, v:aggrega(P.keys, [k]).v_t})).sort((x,y)=>y.v - x.v)[0];
     if (peso && a.v_t) out.push(`${MK[peso.k].t} è il primo marchio per contratti: ${fmtP(pct(peso.v, a.v_t))} del totale.`);
   }
-  out.push(`Liquidazioni: ${fmt(a.liq)}, pari al ${fmtP(a.liq_p)} delle immatricolazioni del nuovo.`);
+  out.push(`Liquidazioni: ${fmt(a.liq)}, pari al ${fmtP(a.liq_pi)} delle immatricolazioni totali e al ${fmtP(a.liq_pv)} di quelle del nuovo.`);
   return out;
 }
 /* testi e sezioni predefiniti: sono quelli del pulsante "Report PDF" e il punto di partenza di "Crea il report" */
@@ -1137,7 +1137,7 @@ function costruisciPDF(jsPDF, P, per, a, c, o){
     },
     marchi(){
       if (per.m.length < 2) return;
-      const rh = 7, cols = [["Marchio", 30, "left"], ["Contratti", 20], ["Quota", 17], ["Var.", 19], ["Finanz.", 18], ["Penetr.", 18], ["Captive", 17], ["Liquid.", 17], ["Liq./imm.", 22]];
+      const rh = 7, cols = [["Marchio", 30, "left"], ["Contratti", 18], ["Quota", 15], ["Var.", 17], ["Finanz.", 16], ["Penetr.", 16], ["Captive", 15], ["Liquid.", 15], ["Su imm.", 18], ["Su nuovo", 18]];
       spazio(9 + (per.m.length + 2) * rh + 9);
       testata("CONFRONTO", "Per marchio");
       const gr = aggrega(P.keys, MARCHI.map(m=>m.k));
@@ -1147,7 +1147,7 @@ function costruisciPDF(jsPDF, P, per, a, c, o){
       y += rh;
       const riga = (nome, r, rc, tot, k) => {
         const dv = rc ? variazione(r.v_t, rc.v_t) : null;
-        const celle = [nome, fmt(r.v_t), fmtP(pct(r.v_t, gr.v_t)), fmtVar(dv), fmt(r.fin_t), fmtP(r.pen), fmt(r.capt_t), fmt(r.liq), fmtP(r.liq_p)];
+        const celle = [nome, fmt(r.v_t), fmtP(pct(r.v_t, gr.v_t)), fmtVar(dv), fmt(r.fin_t), fmtP(r.pen), fmt(r.capt_t), fmt(r.liq), fmtP(r.liq_pi), fmtP(r.liq_pv)];
         let xx = M;
         cols.forEach(([, w], i)=>{
           const col = i === 3 && dv != null && dv > 0.05 ? PDFC.accent : (i === 0 ? PDFC.ink : PDFC.ink2);
@@ -1170,7 +1170,7 @@ function costruisciPDF(jsPDF, P, per, a, c, o){
       spazio(13 + rr.length * 7 + 9); testata("CREDITO", "Finanziamenti per finanziaria"); tabella(rr);
     },
     credito(){
-      const rr = [["Captive", a.capt_t, `${fmtP(pct(a.capt_t, a.fin_t))} dei finanziamenti`], ["Agos", a.ag_t, `${fmtP(pct(a.ag_t, a.fin_t))} dei finanziamenti`], ["Loyalty", a.loy, `${fmtP(pct(a.loy, a.v_t))} dei contratti`], ["Liquidazioni", a.liq, `${fmtP(a.liq_p)} delle immatricolazioni del nuovo`]];
+      const rr = [["Captive", a.capt_t, `${fmtP(pct(a.capt_t, a.fin_t))} dei finanziamenti`], ["Agos", a.ag_t, `${fmtP(pct(a.ag_t, a.fin_t))} dei finanziamenti`], ["Loyalty", a.loy, `${fmtP(pct(a.loy, a.v_t))} dei contratti`], ["Liquidazioni", a.liq, `${fmtP(a.liq_pi)} su immatric., ${fmtP(a.liq_pv)} su nuovo`]];
       spazio(13 + rr.length * 7 + 9); testata("CREDITO", "Captive, Agos, loyalty e liquidazioni"); tabella(rr);
     },
     evidenza(){
