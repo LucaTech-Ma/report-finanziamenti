@@ -228,8 +228,15 @@ body{background:var(--deep)}
 .manifesto span.chiaro{color:#FFFFFF}
 .manifesto b{font-family:var(--serif);font-size:clamp(1.6rem,3.4vw,2.6rem);font-weight:600;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .manifesto small{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@container (max-width:84px){ .manifesto small{display:none} .manifesto b{font-size:1.05rem} }
+@container (max-width:84px){ .manifesto b{font-size:1.05rem} }
 @container (max-width:40px){ .manifesto b{display:none} }
+/* nomi dei marchi sempre visibili (Luca, 4/11): se il nome non sta nella fetta, va nella riga sotto, allineata a destra come le fette piccole */
+.manifesto span.fuori small{display:none}
+.quote-fuori{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px 18px;margin-top:-4px}
+.quote-fuori:empty{display:none}
+.quote-fuori span{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink);white-space:nowrap}
+.quote-fuori i{display:inline-block;width:10px;height:10px}
+.quote-fuori b{font-weight:600;letter-spacing:0}
 .cb{position:relative;display:inline-flex;justify-content:flex-end;align-items:center;width:100%;min-width:84px;height:24px;padding-right:6px}
 .cb::before{content:"";position:absolute;left:0;top:3px;bottom:3px;width:var(--w);background:color-mix(in srgb, var(--c) 26%, transparent);border-right:3px solid var(--c)}
 .cb span{position:relative}
@@ -471,6 +478,8 @@ function aggrega(keys, marchi){
   a.capt_t = a.capt_n + a.capt_k; a.ag_t = a.ag_n + a.ag_k + a.ag_u;
   a.pen = pct(a.fin_t, a.v_t); a.pen_n = pct(a.fin_n, a.v_n); a.pen_k = pct(a.fin_k, a.v_k);
   a.liq_p = pct(a.liq, a.i_n);
+  /* validato da Luca il 4/11/2026: liquidazioni sulle immatricolazioni totali e sulle immatricolazioni del nuovo */
+  a.liq_pi = pct(a.liq, a.i_t); a.liq_pv = pct(a.liq, a.i_n);
   return a;
 }
 
@@ -575,7 +584,8 @@ function vistaLettura(){
     <div class="panel-b"><div class="chart" id="ch-progressivo"></div><div class="legend" style="margin-top:10px"><span><i style="background:var(--cobalto)"></i>${ytd.Y}</span><span><i class="line" style="background:#78716C"></i>${ytd.Y - 1}</span></div></div></div>`;
   const grafici = `<div class="charts">
       <div class="panel"><div class="panel-h"><div><p class="kicker">Andamento</p><h3>Contratti per mese</h3><p class="sub">Ultimi 24 mesi, in pieno il periodo scelto</p></div><div class="legend"><span><i style="background:var(--cobalto)"></i>Nuovo</span><span><i style="background:var(--zafferano)"></i>Km 0</span></div></div><div class="panel-b"><div class="chart" id="ch-contratti"></div><div class="tip" hidden></div></div></div>
-      <div class="panel"><div class="panel-h"><div><p class="kicker">Andamento</p><h3>Penetrazione finanziamenti</h3><p class="sub">Finanziamenti su contratti, mese per mese: il totale e, separati, nuovo e km 0</p></div><div class="legend"><span><i class="line" style="background:var(--prugna);height:3px"></i>Totale</span><span><i class="line" style="background:var(--cobalto)"></i>Nuovo</span><span><i class="line" style="background:var(--zafferano)"></i>Km 0</span></div></div><div class="panel-b"><div class="chart" id="ch-pen"></div><div class="tip" hidden></div></div></div>    </div>`;
+      <div class="panel"><div class="panel-h"><div><p class="kicker">Andamento</p><h3>Penetrazione finanziamenti</h3><p class="sub">Finanziamenti su contratti, mese per mese: il totale e, separati, nuovo e km 0</p></div><div class="legend"><span><i class="line" style="background:var(--prugna);height:3px"></i>Totale</span><span><i class="line" style="background:var(--cobalto)"></i>Nuovo</span><span><i class="line" style="background:var(--zafferano)"></i>Km 0</span></div></div><div class="panel-b"><div class="chart" id="ch-pen"></div><div class="tip" hidden></div></div></div>
+      <div class="panel"><div class="panel-h"><div><p class="kicker">Andamento</p><h3>Liquidazioni</h3><p class="sub">Liquidazioni mese per mese, a confronto: sulle immatricolazioni totali e su quelle del nuovo. Asse fino a 120%: i mesi oltre sono segnati con un triangolo in cima</p></div><div class="legend"><span><i class="line" style="background:var(--prugna);height:3px"></i>Su immatricolato</span><span><i class="line" style="background:var(--cobalto)"></i>Su nuovo</span><span><i style="background:color-mix(in srgb, var(--cobalto) 16%, transparent)"></i>Distacco</span></div></div><div class="panel-b"><div class="chart" id="ch-liq"></div><div class="tip" hidden></div></div></div>    </div>`;
   return kpi + grafici + hero;  /* "Da inizio anno" in fondo alla pagina (Luca, 3/11) */
 }
 
@@ -594,7 +604,7 @@ function paginaMarchi(P, per, a, c, lab, nota){
     </div>${nota}`;
   const tot = a.v_t || 1;
   const manifesto = `<section style="display:grid;gap:14px"><div class="sec-head"><div><p class="kicker">Quote</p><h2>Chi porta i contratti</h2><p class="sub">Quota di ogni marchio sui contratti del periodo</p></div></div>
-    <div class="manifesto" role="img" aria-label="Quota dei contratti per marchio">${perContratti.filter(r=>r.a.v_t > 0).map(r=>{ const [col, chiaro] = COL_MARCHIO[r.k]; return `<span class="${chiaro ? "chiaro" : ""}" style="flex:${r.a.v_t} 1 0;background:${col}" title="${esc(r.M.t)}: ${fmt(r.a.v_t)} contratti, ${fmtP(pct(r.a.v_t, tot))}"><b>${fmtP(pct(r.a.v_t, tot))}</b><small>${esc(r.M.t)}</small></span>`; }).join("")}</div></section>`;
+    <div class="manifesto" role="img" aria-label="Quota dei contratti per marchio: ${esc(perContratti.filter(r=>r.a.v_t > 0).map(r=>`${r.M.t} ${fmtP(pct(r.a.v_t, tot))}`).join(", "))}">${perContratti.filter(r=>r.a.v_t > 0).map(r=>{ const [col, chiaro] = COL_MARCHIO[r.k]; return `<span class="${chiaro ? "chiaro" : ""}" style="flex:${r.a.v_t} 1 0;background:${col}" data-n="${esc(r.M.t)}" data-p="${esc(fmtP(pct(r.a.v_t, tot)))}" data-c="${col}" title="${esc(r.M.t)}: ${fmt(r.a.v_t)} contratti, ${fmtP(pct(r.a.v_t, tot))}"><b>${fmtP(pct(r.a.v_t, tot))}</b><small>${esc(r.M.t)}</small></span>`; }).join("")}</div><div class="quote-fuori" aria-hidden="true"></div></section>`;
   return kpi + manifesto + tabellaMarchi(P, per);
 }
 
@@ -618,11 +628,11 @@ function tabellaMarchi(P, per){
   const righeM = per.m.map(k=>({k, a:aggrega(P.keys, [k])}));
   const maxV = Math.max(1, ...righeM.map(r=>r.a.v_t));
   const barra = (testo, quota, col) => `<span class="cb" style="--w:${Math.max(0, Math.min(1, quota)) * 100}%;--c:${col}"><span>${testo}</span></span>`;
-  const riga = (nome, a, cls, k) => `<tr class="${cls||""}"${k?` data-perimetro="${k}" tabindex="0"`:""}><td>${k ? `<span class="sq" style="background:${COL_MARCHIO[k][0]}"></span>` : ""}${esc(nome)}</td><td>${fmt(a.v_n)}</td><td>${fmt(a.v_k)}</td><td>${k ? barra(fmt(a.v_t), a.v_t / maxV, COL_MARCHIO[k][0]) : fmt(a.v_t)}</td><td class="dim">${fmtP(pct(a.v_t, gr.v_t))}</td><td>${fmt(a.i_t)}</td><td>${fmt(a.fin_t)}</td><td>${k && a.pen != null ? barra(fmtP(a.pen), a.pen / 100, COL.prugna) : fmtP(a.pen)}</td><td>${fmt(a.capt_t)}</td><td>${fmt(a.ag_t)}</td><td>${fmt(a.loy)}</td><td>${fmt(a.leasing)}</td><td>${fmt(a.rental)}</td><td>${fmt(a.liq)}</td><td class="dim">${fmtP(a.liq_p)}</td></tr>`;
+  const riga = (nome, a, cls, k) => `<tr class="${cls||""}"${k?` data-perimetro="${k}" tabindex="0"`:""}><td>${k ? `<span class="sq" style="background:${COL_MARCHIO[k][0]}"></span>` : ""}${esc(nome)}</td><td>${fmt(a.v_n)}</td><td>${fmt(a.v_k)}</td><td>${k ? barra(fmt(a.v_t), a.v_t / maxV, COL_MARCHIO[k][0]) : fmt(a.v_t)}</td><td class="dim">${fmtP(pct(a.v_t, gr.v_t))}</td><td>${fmt(a.i_t)}</td><td>${fmt(a.fin_t)}</td><td>${k && a.pen != null ? barra(fmtP(a.pen), a.pen / 100, COL.prugna) : fmtP(a.pen)}</td><td>${fmt(a.capt_t)}</td><td>${fmt(a.ag_t)}</td><td>${fmt(a.loy)}</td><td>${fmt(a.leasing)}</td><td>${fmt(a.rental)}</td><td>${fmt(a.liq)}</td><td>${fmtP(a.liq_pi)}</td><td>${fmtP(a.liq_pv)}</td></tr>`;
   return `<section style="display:grid;gap:14px"><div class="sec-head"><div><p class="kicker">Tabella</p><h2>Tutti i numeri per marchio</h2><p class="sub">Clicca un marchio per vederlo da solo</p></div></div>
     <div class="tw"><table>
-    <thead><tr class="grp"><th></th><th colspan="4" style="text-align:center">Contratti</th><th></th><th colspan="2" style="text-align:center">Finanziamenti</th><th colspan="7"></th></tr>
-    <tr><th>Marchio</th><th>Nuovo</th><th>Km 0</th><th>Totale</th><th>Quota</th><th>Immatric.</th><th>Totale</th><th>Penetr.</th><th>Captive</th><th>Agos</th><th>Loyalty</th><th>Leasing</th><th>Rental</th><th>Liquidaz.</th><th>% immatric.</th></tr></thead>
+    <thead><tr class="grp"><th></th><th colspan="4" style="text-align:center">Contratti</th><th></th><th colspan="2" style="text-align:center">Finanziamenti</th><th colspan="5"></th><th colspan="3" style="text-align:center">Liquidazioni</th></tr>
+    <tr><th>Marchio</th><th>Nuovo</th><th>Km 0</th><th>Totale</th><th>Quota</th><th>Immatric.</th><th>Totale</th><th>Penetr.</th><th>Captive</th><th>Agos</th><th>Loyalty</th><th>Leasing</th><th>Rental</th><th>Totale</th><th title="Liquidazioni su immatricolazioni totali (nuovo e km 0 / demo)">Su immatric.</th><th title="Liquidazioni sulle immatricolazioni del nuovo">Su nuovo</th></tr></thead>
     <tbody>${righeM.map(r=>riga(MK[r.k].t, r.a, "click t", r.k)).join("")}${riga("Totale " + per.t.toLowerCase(), tot, "tot")}</tbody></table></div></section>`;
 }
 
@@ -653,7 +663,7 @@ function dettaglio(a, per){
 }
 
 /* ---------- grafici ---------- */
-function serie(per){ return chiavi().slice(-24).map(k=>{ const a = aggrega([k], per.m); return {k, n:a.v_n, km:a.v_k, it:a.i_t, pen:a.pen, penN:a.pen_n, penK:a.pen_k, fin:a.fin_t, parz:!!S.docs[k].parziale}; }); }
+function serie(per){ return chiavi().slice(-24).map(k=>{ const a = aggrega([k], per.m); return {k, n:a.v_n, km:a.v_k, it:a.i_t, pen:a.pen, penN:a.pen_n, penK:a.pen_k, fin:a.fin_t, liq:a.liq, iN:a.i_n, liqI:a.liq_pi, liqV:a.liq_pv, parz:!!S.docs[k].parziale}; }); }
 function scala(max){ const passi = [1,2,2.5,5,10]; const exp = Math.pow(10, Math.floor(Math.log10(Math.max(max,1)))); for (const p of passi){ const s = p*exp; if (s*4 >= max) return {step:s, max:s*4}; } return {step:exp*10, max:exp*40}; }
 const AX = `font-family="JetBrains Mono, monospace" font-size="11.5" fill="#78716C"`;
 /* dal 3/11 i grafici stanno uno sotto l'altro e si disegnano sulla larghezza reale: testo leggibile su ogni schermo */
@@ -696,6 +706,40 @@ function graficoPen(dati, sel, Wpx){
   if (path) s += `<path d="${path} L${ultimoX.toFixed(1)},${(T + h).toFixed(1)} L${primoX.toFixed(1)},${(T + h).toFixed(1)} Z" fill="${COL.prugna}" fill-opacity=".12"/><path d="${path}" fill="none" stroke="${COL.prugna}" stroke-width="2.5" stroke-linejoin="round"/>`;
   dati.forEach((d, i)=>{
     if (d.pen != null){ const on = sel.has(d.k); s += `<rect x="${(x(i) - (on ? 4 : 3)).toFixed(1)}" y="${(y(d.pen) - (on ? 4 : 3)).toFixed(1)}" width="${on ? 8 : 6}" height="${on ? 8 : 6}" fill="${on ? COL.prugna : "#FFFFFF"}" stroke="${COL.prugna}" stroke-width="1.5"/>`; }
+    if (i % ogniMesi(W) === (dati.length-1) % ogniMesi(W)) s += `<text x="${x(i).toFixed(1)}" y="${H-6}" text-anchor="middle" ${AX}>${fmtMeseBreve(d.k)}</text>`;
+    const bw = dati.length > 1 ? w/(dati.length-1) : w;
+    s += `<rect class="hit" data-i="${i}" x="${(x(i)-bw/2).toFixed(1)}" y="${T}" width="${bw.toFixed(1)}" height="${h}" fill="transparent"/>`;
+  });
+  return s + `</svg>`;
+}
+/* validato da Luca il 4/11/2026: liquidazioni sulle immatricolazioni totali e su quelle del nuovo, mese per mese.
+   Stessi colori della penetrazione: prugna per il dato sul totale, cobalto per il nuovo.
+   Asse fisso da 0 a 120% come la penetrazione (Luca, 4/11): un mese oltre resta in cima con un triangolo, il valore vero è nel riquadro.
+   Lo spazio fra le due linee è colorato, così il distacco si vede anche quando è di pochi punti (Luca, 4/11). */
+function graficoLiq(dati, sel, Wpx){
+  const W = Math.max(300, Math.round(Wpx || 520)), H = W < 600 ? 230 : 270, L = 48, R = 10, T = 16, B = 28, w = W-L-R, h = H-T-B;
+  const sc = {step:30, max:120};
+  const x = i => L + (dati.length === 1 ? w/2 : w * i / (dati.length-1));
+  const y = v => T + h - h * Math.min(v, sc.max) / sc.max;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Liquidazioni per mese, sulle immatricolazioni totali e su quelle del nuovo">`;
+  for (let i=0;i<=4;i++){ const yy = T + h - h*i/4; s += `<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="${i ? "#E7E5E4" : "#141413"}" stroke-width="1"/><text x="${L-8}" y="${yy+4}" text-anchor="end" ${AX}>${fmtNum(sc.step*i)}%</text>`; }
+  /* distacco: un poligono per ogni tratto di mesi consecutivi con entrambe le misure */
+  let tratto = [];
+  const chiudi = () => { if (tratto.length > 1){ const su = tratto.map(i=>`${x(i).toFixed(1)},${y(dati[i].liqV).toFixed(1)}`), giu = tratto.slice().reverse().map(i=>`${x(i).toFixed(1)},${y(dati[i].liqI).toFixed(1)}`); s += `<path d="M${su.concat(giu).join(" L")} Z" fill="${COL.cobalto}" fill-opacity=".16"/>`; } tratto = []; };
+  dati.forEach((d, i)=>{ if (d.liqI != null && d.liqV != null) tratto.push(i); else chiudi(); }); chiudi();
+  const linea = (campo, col, sp) => {
+    let d = ""; dati.forEach((dd, i)=>{ if (dd[campo] == null) return; d += (d ? " L" : "M") + `${x(i).toFixed(1)},${y(dd[campo]).toFixed(1)}`; });
+    if (!d) return;
+    s += `<path d="${d}" fill="none" stroke="${col}" stroke-width="${sp}" stroke-linejoin="round"/>`;
+    dati.forEach((dd, i)=>{
+      if (dd[campo] == null) return; const on = sel.has(dd.k), r = on ? 4 : 3, cx = x(i), cy = y(dd[campo]);
+      if (dd[campo] > sc.max) s += `<path d="M${(cx - r - 1).toFixed(1)},${(cy + r).toFixed(1)} L${(cx + r + 1).toFixed(1)},${(cy + r).toFixed(1)} L${cx.toFixed(1)},${(cy - r - 1).toFixed(1)} Z" fill="${on ? col : "#FFFFFF"}" stroke="${col}" stroke-width="1.5"><title>Fuori scala: ${fmtP(dd[campo])}</title></path>`;
+      else s += `<rect x="${(cx - r).toFixed(1)}" y="${(cy - r).toFixed(1)}" width="${2*r}" height="${2*r}" fill="${on ? col : "#FFFFFF"}" stroke="${col}" stroke-width="1.5"/>`;
+    });
+  };
+  linea("liqV", COL.cobalto, 2);
+  linea("liqI", COL.prugna, 2.5);
+  dati.forEach((d, i)=>{
     if (i % ogniMesi(W) === (dati.length-1) % ogniMesi(W)) s += `<text x="${x(i).toFixed(1)}" y="${H-6}" text-anchor="middle" ${AX}>${fmtMeseBreve(d.k)}</text>`;
     const bw = dati.length > 1 ? w/(dati.length-1) : w;
     s += `<rect class="hit" data-i="${i}" x="${(x(i)-bw/2).toFixed(1)}" y="${T}" width="${bw.toFixed(1)}" height="${h}" fill="transparent"/>`;
@@ -772,6 +816,20 @@ function graficoLoyalty(a, Wpx){
   });
   s.push(`</svg>`); return s.join("");
 }
+/* pagina Marchi: il nome di ogni marchio resta sempre visibile (Luca, 4/11/2026).
+   Se nella fetta non sta per intero, si nasconde lì e compare nella riga sotto il grafico, con il colore e la quota. */
+function etichetteQuote(){
+  const m = $(".manifesto"); if (!m) return;
+  const box = m.nextElementSibling; if (!box || !box.classList.contains("quote-fuori")) return;
+  const fuori = [];
+  m.querySelectorAll("span[data-n]").forEach(s=>{
+    s.classList.remove("fuori");
+    const sm = s.querySelector("small");
+    const stretta = s.clientWidth - 28 <= 84 || !sm || sm.scrollWidth > sm.clientWidth + 1;
+    if (stretta){ s.classList.add("fuori"); fuori.push(s); }
+  });
+  box.innerHTML = fuori.map(s=>`<span><i style="background:${s.dataset.c}"></i>${esc(s.dataset.n)} <b>${esc(s.dataset.p)}</b></span>`).join("");
+}
 function disegnaExtra(){
   const cur = periodoCorrente(); if (!cur) return;
   const {P, per} = cur, sel = new Set(P.keys);
@@ -787,7 +845,10 @@ function disegnaGrafici(){
   c1.innerHTML = graficoContratti(dati, sel, c1.clientWidth); c2.innerHTML = graficoPen(dati, sel, c2.clientWidth);
   const tipC = d => `<div class="k">${esc(fmtMese(d.k))}${d.parz ? " · parziale" : ""}</div><div class="row"><span><span class="sw" style="background:${COL.cobalto}"></span>Nuovo</span><span>${fmt(d.n)}</span></div><div class="row"><span><span class="sw" style="background:${COL.zafferano}"></span>Km 0</span><span>${fmt(d.km)}</span></div><div class="row"><span>Totale</span><span>${fmt(d.n + d.km)}</span></div>`;
   const tipP = d => `<div class="k">${esc(fmtMese(d.k))}${d.parz ? " · parziale" : ""}</div><div class="row"><span><span class="sw" style="background:${COL.prugna}"></span>Totale</span><span>${fmtP(d.pen)}</span></div><div class="row"><span><span class="sw" style="background:${COL.cobalto}"></span>Nuovo</span><span>${fmtP(d.penN)}</span></div><div class="row"><span><span class="sw" style="background:${COL.zafferano}"></span>Km 0</span><span>${fmtP(d.penK)}</span></div><div class="row"><span>Finanziamenti</span><span>${fmt(d.fin)}</span></div><div class="row"><span>Contratti</span><span>${fmt(d.n + d.km)}</span></div>`;
-  [[c1, tipC], [c2, tipP]].forEach(([c, testo])=>{
+  const c3 = $("#ch-liq");
+  if (c3) c3.innerHTML = graficoLiq(dati, sel, c3.clientWidth);
+  const tipL = d => `<div class="k">${esc(fmtMese(d.k))}${d.parz ? " · parziale" : ""}</div><div class="row"><span><span class="sw" style="background:${COL.prugna}"></span>Su immatricolato</span><span>${fmtP(d.liqI)}</span></div><div class="row"><span><span class="sw" style="background:${COL.cobalto}"></span>Su nuovo</span><span>${fmtP(d.liqV)}</span></div><div class="row"><span>Distacco</span><span>${d.liqI != null && d.liqV != null ? fmtDec(d.liqV - d.liqI, 1) + " punti" : "—"}</span></div><div class="row"><span>Liquidazioni</span><span>${fmt(d.liq)}</span></div><div class="row"><span>Immatricolazioni</span><span>${fmt(d.it)}</span></div><div class="row"><span>Di cui nuovo</span><span>${fmt(d.iN)}</span></div>`;
+  [[c1, tipC], [c2, tipP]].concat(c3 ? [[c3, tipL]] : []).forEach(([c, testo])=>{
     const tip = c.parentElement.querySelector(".tip");
     if (!c.addEventListener) return;
     c.addEventListener("pointermove", e=>{
@@ -1235,6 +1296,7 @@ function render(){
   $("#vista").innerHTML = lettura ? vistaLettura() : V.tab === "crea" ? vistaCrea() : vistaInserisci();
   if (V.tab === "panoramica") disegnaGrafici();
   if (V.tab === "panoramica" || V.tab === "credito") disegnaExtra();
+  if (V.tab === "marchi") etichetteQuote();
 }
 
 /* ---------- eventi ---------- */
@@ -1274,7 +1336,9 @@ document.addEventListener("click", async e=>{
 });
 /* i grafici si ridisegnano quando cambia la larghezza della finestra (non l'altezza: sul telefono cambia scorrendo) */
 let larghezzaVista = window.innerWidth, timerVista = null;
-window.addEventListener("resize", ()=>{ if (window.innerWidth === larghezzaVista) return; larghezzaVista = window.innerWidth; clearTimeout(timerVista); timerVista = setTimeout(()=>{ if (V.tab === "panoramica" || V.tab === "credito") render(); }, 200); });
+window.addEventListener("resize", ()=>{ if (window.innerWidth === larghezzaVista) return; larghezzaVista = window.innerWidth; clearTimeout(timerVista); timerVista = setTimeout(()=>{ if (V.tab === "panoramica" || V.tab === "credito") render(); if (V.tab === "marchi") etichetteQuote(); }, 200); });
+/* i caratteri arrivano dopo il primo disegno e cambiano la larghezza dei nomi: si rimisurano le etichette delle quote */
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if (V.tab === "marchi") etichetteQuote(); });
 /* scegliere un solo marchio dalla pagina Marchi porta alla Panoramica di quel marchio */
 function scegliPerimetro(k){ V.perimetro = k; if (V.tab === "marchi" && PERIMETRI.find(x=>x.k===k).m.length === 1) V.tab = "panoramica"; render(); }
 document.addEventListener("keydown", e=>{ if (e.key === "Enter"){ const pr = e.target.closest && e.target.closest("tr[data-perimetro]"); if (pr) scegliPerimetro(pr.getAttribute("data-perimetro")); } });

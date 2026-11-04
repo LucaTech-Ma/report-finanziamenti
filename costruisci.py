@@ -10,13 +10,16 @@ Uso, dalla cartella report-finanziamenti-supabase:
 Da rifare solo quando cambia la pagina su claude.ai, non quando si inserisce un mese.
 """
 import json
+import sys
 from pathlib import Path
 
 SUPABASE = {"url": "https://xemttyxuzkxvcyvqnggo.supabase.co", "chiave": "sb_publishable_N0OXDDubt-t-Htt1dMbjbQ_nJLhknxS"}
 LIBRERIA = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"
 
 QUI = Path(__file__).resolve().parent
-BOZZA = QUI.parent / "2026-10-26_bozza_mensile-finanziamenti.html"
+# dal 4/11/2026 si può indicare un'altra sorgente (python costruisci.py percorso.html): serve quando la pagina
+# su claude.ai contiene una prova non validata e si pubblica da una copia pulita in 4-archivio/
+BOZZA = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else QUI.parent / "2026-10-26_bozza_mensile-finanziamenti.html"
 USCITA = QUI / "index.html"
 
 testo = BOZZA.read_text(encoding="utf-8")
